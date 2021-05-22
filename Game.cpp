@@ -3,21 +3,30 @@
 #include <ctime>
 #include <cstdlib>
 #include <random>
+#include <vector>
 
 // using namespace std;
 
 class Game {
     private:
-        void AddNew();
+        void MergeUp();
+        void CompressUp();
+        void HamburgerFlip();
     public: 
-        int state[4][4];
+        std::vector<std::vector<int>> state;
         int score;
         int highest_tile;
 
-        Game() : state{}, score(0), highest_tile(0) { }
+        Game() : state{{0, 0, 0, 0}, 
+                       {0, 0, 0, 0}, 
+                       {0, 0, 0, 0}, 
+                       {0, 0, 0, 0}}, score(0), highest_tile(0) { }
         void Funi();
         bool CanContinue();
         int* PossibleMoves();
+        void Transpose();
+                void AddNew();
+
 };
 
 void Game::AddNew() {
@@ -66,8 +75,20 @@ int* Game::PossibleMoves() {
     int* move_list = {};
 
     // left_copy = 
+    Transpose();
 
     return move_list;
+}
+
+void Game::Transpose() {
+    std::vector<std::vector<int>> transposed_state = {{0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}};
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            transposed_state[i][j] = state[j][i];
+        }
+    }
+    // TODO: MAKE THIS RETURN TRANSPOSED STATE INSTEAD FOR MORE FLEXIBILITY???
+    state = transposed_state;
 }
 
 std::ostream& operator<<(std::ostream &stream, Game &game) {
@@ -81,17 +102,15 @@ std::ostream& operator<<(std::ostream &stream, Game &game) {
     return stream << "Score: " + std::to_string(game.score) << std::endl << str;
 }
 
-// void myfun(mt19937 arengee, uniform_int_distribution<> disstrib) {
-//     std::cout << disstrib(arengee) << std::endl;
-// }
-
 int main(int argc, char** argv) {
     Game game = Game();
 
-    // std::cout << game;
-    // game.CanContinue();
+    game.AddNew();
+    game.AddNew();
 
-    std::cout << game.PossibleMoves();
+    std::cout << game;
+    game.Transpose();
+    std::cout << game;
 
     return 0;
 }

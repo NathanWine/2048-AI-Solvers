@@ -6,40 +6,44 @@
 #include <vector>
 
 class Game {
-    private:
+    protected:
+        std::vector<std::vector<int>> AddNew(std::vector<std::vector<int>> m);
+        std::vector<std::vector<int>> Transpose(std::vector<std::vector<int>> m);
+        std::vector<std::vector<int>> MergeUp(std::vector<std::vector<int>> m);
+        std::vector<std::vector<int>> CompressUp(std::vector<std::vector<int>> m);
+        std::vector<std::vector<int>> HamburgerFlip(std::vector<std::vector<int>> m);
     public: 
         std::vector<std::vector<int>> state;
         int score;
         int highest_tile;
+        const int DIM;
 
-        Game() : state{{0, 0, 0, 0}, 
-                       {0, 0, 0, 0}, 
-                       {0, 0, 0, 0}, 
-                       {0, 0, 0, 0}}, score(0), highest_tile(0) { }
-        bool CanContinue();
+        Game(int d=4) : DIM(d), score(0), highest_tile(0), state{{0, 0, 0, 0}, 
+                                                                 {0, 0, 0, 0}, 
+                                                                 {0, 0, 0, 0}, 
+                                                                 {0, 0, 0, 0}} {
+            state = AddNew(state);
+            state = AddNew(state);
+        }
+        bool CanContinue(std::vector<std::vector<int>> m);
         int* PossibleMoves();
-        void Transpose();
-        void AddNew();
-        void MergeUp();
-        void CompressUp();
-        void HamburgerFlip();
-        void Up();
-        void Left();
-        void Right();
-        void Down();
+        std::vector<std::vector<int>> Up();
+        std::vector<std::vector<int>> Left();
+        std::vector<std::vector<int>> Right();
+        std::vector<std::vector<int>> Down();
 };
 
-void Game::AddNew() {
+std::vector<std::vector<int>> Game::AddNew(std::vector<std::vector<int>> m) {
     // Initialize rng device with random seed
     std::random_device rd;
     std::mt19937 rng(rd());
-    std::uniform_int_distribution<> pos_dist(0, 3);
+    std::uniform_int_distribution<> pos_dist(0, DIM-1);
 
     // Generating a random position
     // TODO: FIND A BETTER METHOD OF GETTING A RANDOM EMPTY TILE
     int x = pos_dist(rng);
     int y = pos_dist(rng);
-    while(state[x][y] != 0) {
+    while(m[x][y] != 0) {
         // std::cout << "Need to find a new position" << std::endl;
         x = pos_dist(rng);
         y = pos_dist(rng);
@@ -48,20 +52,21 @@ void Game::AddNew() {
     // Generating a random value of 2 or 4 (weighted probability)
     std::uniform_int_distribution<> val_dist(0, 9);
     if (val_dist(rng) > 0) {
-        state[x][y] = 2;
+        m[x][y] = 2;
     }
     else {
-        state[x][y] = 4;
+        m[x][y] = 4;
     }
+    return m;
 }
 
-bool Game::CanContinue() {
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            if (state[i][j] == 0)
+bool Game::CanContinue(std::vector<std::vector<int>> m) {
+    for (int i = 0; i < DIM; i++) {
+        for (int j = 0; j < DIM; j++) {
+            if (m[i][j] == 0)
                 return true;
-            if ((i < 3 && state[i][j] == state[i + 1][j]) || 
-                (j < 3 && state[i][j] == state[i][j + 1]))
+            if ((i < (DIM-1) && m[i][j] == m[i + 1][j]) || 
+                (j < (DIM-1) && m[i][j] == m[i][j + 1]))
                 return true;
         }
     }
@@ -75,123 +80,131 @@ int* Game::PossibleMoves() {
     int* move_list = {};
 
     // left_copy = 
-    Transpose();
+    // Transpose();
 
     return move_list;
 }
 
 
-void Game::MergeUp() {
-    for (int col = 0; col < 4; col++) {
+std::vector<std::vector<int>> Game::MergeUp(std::vector<std::vector<int>> m) {
+    std::vector<std::vector<int>> state_cpy = m;
+    for (int col = 0; col < DIM; col++) {
         std::vector<int> merged_column;
-        for (int i = 0; i < 4; i++) {
-            if (state[i][col] != 0) {
-                merged_column.push_back(state[i][col]);
+        for (int i = 0; i < DIM; i++) {
+            if (m[i][col] != 0) {
+                merged_column.push_back(m[i][col]);
             }            
         }
-        while (merged_column.size() < 4) {
+        while (merged_column.size() < DIM) {
             merged_column.push_back(0);
         }
-        for (int i = 0; i < 4; i++) {
-            state[i][col] = merged_column[i];
+        for (int i = 0; i < DIM; i++) {
+            state_cpy[i][col] = merged_column[i];
         }
     }
+    return state_cpy;
 }
 
-void Game::CompressUp() {
-    for (int col = 0; col < 4; col++) {
+std::vector<std::vector<int>> Game::CompressUp(std::vector<std::vector<int>> m) {
+    std::vector<std::vector<int>> state_cpy = m;
+    for (int col = 0; col < DIM; col++) {
         std::vector<int> compressed_column;
-        if (state[0][col] == state[1][col]) {
-            compressed_column.push_back(state[0][col] * 2);
-            score += state[0][col] * 2;
-            if (state[2][col] == state[3][col]) {
-                compressed_column.push_back(state[2][col] * 2);
-                compressed_column.push_back(0);
-                compressed_column.push_back(0);
-                score += state[2][col] * 2;
+        if (m[0][col] == m[1][col]) {
+            compressed_column.push_back(m[0][col] * 2);
+            score += m[0][col] * 2;
+            if (m[2][col] == m[3][col]) {
+                compressed_column.push_back(m[2][col] * 2);
+                score += m[2][col] * 2;
             }
             else {
-                compressed_column.push_back(state[2][col]);
-                compressed_column.push_back(state[3][col]);
-                compressed_column.push_back(0);
+                compressed_column.push_back(m[2][col]);
+                compressed_column.push_back(m[3][col]);
             }
         }
-        else if (state[1][col] == state[2][col]) {
-            compressed_column.push_back(state[0][col]);
-            compressed_column.push_back(state[1][col] * 2);
-            compressed_column.push_back(state[3][col]);
-            compressed_column.push_back(0);
-            score += state[1][col] * 2;
+        else if (m[1][col] == m[2][col]) {
+            compressed_column.push_back(m[0][col]);
+            compressed_column.push_back(m[1][col] * 2);
+            compressed_column.push_back(m[3][col]);
+            score += m[1][col] * 2;
         }
-        else if (state[2][col] == state[3][col]) {
-            compressed_column.push_back(state[0][col]);
-            compressed_column.push_back(state[1][col]);
-            compressed_column.push_back(state[2][col] * 2);
-            compressed_column.push_back(0);
-            score += state[2][col] * 2;
+        else if (m[2][col] == m[3][col]) {
+            compressed_column.push_back(m[0][col]);
+            compressed_column.push_back(m[1][col]);
+            compressed_column.push_back(m[2][col] * 2);
+            score += m[2][col] * 2;
         }
         else {
-            compressed_column.push_back(state[0][col]);
-            compressed_column.push_back(state[1][col]);
-            compressed_column.push_back(state[2][col]);
-            compressed_column.push_back(state[3][col]);
+            compressed_column.push_back(m[0][col]);
+            compressed_column.push_back(m[1][col]);
+            compressed_column.push_back(m[2][col]);
+            compressed_column.push_back(m[3][col]);
         }
-        for (int i = 0; i < 4; i++) {
-            state[i][col] = compressed_column[i];
+        while(compressed_column.size() < DIM) {
+            compressed_column.push_back(0);
+        }
+        for (int i = 0; i < DIM; i++) {
+            state_cpy[i][col] = compressed_column[i];
         }
     }
+    return state_cpy;
 }
 
-void Game::HamburgerFlip() {
+std::vector<std::vector<int>> Game::HamburgerFlip(std::vector<std::vector<int>> m) {
     std::vector<std::vector<int>> flipped_state = {{}, {}, {}, {}};
-    for (int row = 3, i = 0; row >= 0; row--, i++) {
-        flipped_state[i] = state[row];
+    for (int row = (DIM-1), i = 0; row >= 0; row--, i++) {
+        flipped_state[i] = m[row];
     }
-    state = flipped_state;
+    return flipped_state;
 }
 
-void Game::Transpose() {
+std::vector<std::vector<int>> Game::Transpose(std::vector<std::vector<int>> m) {
     std::vector<std::vector<int>> transposed_state = {{0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}};
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            transposed_state[i][j] = state[j][i];
+    for (int i = 0; i < DIM; i++) {
+        for (int j = 0; j < DIM; j++) {
+            transposed_state[i][j] = m[j][i];
         }
     }
-    // TODO: MAKE THIS RETURN TRANSPOSED STATE INSTEAD FOR MORE FLEXIBILITY???
-    state = transposed_state;
+    return transposed_state;
 }
 
-void Game::Up() {
+std::vector<std::vector<int>> Game::Up() {
     std::vector<std::vector<int>> prev_state = state;
-    MergeUp();
-    CompressUp();
+    prev_state = MergeUp(prev_state);
+    prev_state = CompressUp(prev_state);
     if (state != prev_state) {
-        AddNew();
+        prev_state = AddNew(prev_state);
     }
+    return prev_state;
 }
 
-void Game::Down() {
-    HamburgerFlip();
-    Up();
-    HamburgerFlip();
+std::vector<std::vector<int>> Game::Down() {
+    std::vector<std::vector<int>> prev_state = state;
+    prev_state = HamburgerFlip(prev_state);
+    prev_state = Up();
+    prev_state = HamburgerFlip(prev_state);
+    return prev_state;
 }
 
-void Game::Left() {
-    Transpose();
-    Up();
-    Transpose();
+std::vector<std::vector<int>> Game::Left() {
+    std::vector<std::vector<int>> prev_state = state;
+    prev_state = Transpose(prev_state);
+    prev_state = Up();
+    prev_state = Transpose(prev_state);
+    return prev_state;
 }
 
-void Game::Right() {
-    Transpose();
-    Down();
-    Transpose();
+std::vector<std::vector<int>> Game::Right() {
+    std::vector<std::vector<int>> prev_state = state;
+    prev_state = Transpose(prev_state);
+    prev_state = Down();
+    prev_state = Transpose(prev_state);
+    return prev_state;
 }
 
 std::ostream& operator<<(std::ostream &stream, Game &game) {
     std::string str = "";
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
+    for (int i = 0; i < game.DIM; i++) {
+        for (int j = 0; j < game.DIM; j++) {
             str += std::to_string(game.state[i][j]) + " ";
         }
         str += "\n";
@@ -200,36 +213,27 @@ std::ostream& operator<<(std::ostream &stream, Game &game) {
 }
 
 int main(int argc, char** argv) {
+    Game game = Game();
+    std::cout << game;
+
     std::random_device rd;
     std::mt19937 rng(rd());
     std::uniform_int_distribution<> move_dist(0, 3);
-    Game game = Game();
-
-    game.AddNew();
-    game.AddNew();
-
-    std::cout << game;
-    // game.HamburgerFlip();
-    // std::cout << game;
-
-    // std::vector<int> v1 = {0, 1, 2, 3};
-    // std::vector<int> v2 = {0, 1, 2, 3};
-    // std::cout << (v1 == v2) << std::endl;
-    while(game.CanContinue()) {
+    while(game.CanContinue(game.state)) {
         int random_number = move_dist(rng);
         if (random_number == 0) {
-            game.Up();
+            game.state = game.Up();
         }
         else if (random_number == 1) {
-            game.Down();
+            game.state = game.Down();
         }
         else if (random_number == 2) {
-            game.Right();
+            game.state = game.Right();
         }
         else {
-            game.Left();
+            game.state = game.Left();
         }
-        std::cout << game;
+        std::cout << game << std::endl;
     }
 
     return 0;

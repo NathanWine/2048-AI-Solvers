@@ -5,13 +5,8 @@
 #include <random>
 #include <vector>
 
-// using namespace std;
-
 class Game {
     private:
-        void MergeUp();
-        void CompressUp();
-        void HamburgerFlip();
     public: 
         std::vector<std::vector<int>> state;
         int score;
@@ -21,12 +16,17 @@ class Game {
                        {0, 0, 0, 0}, 
                        {0, 0, 0, 0}, 
                        {0, 0, 0, 0}}, score(0), highest_tile(0) { }
-        void Funi();
         bool CanContinue();
         int* PossibleMoves();
         void Transpose();
-                void AddNew();
-
+        void AddNew();
+        void MergeUp();
+        void CompressUp();
+        void HamburgerFlip();
+        void Up();
+        void Left();
+        void Right();
+        void Down();
 };
 
 void Game::AddNew() {
@@ -40,7 +40,7 @@ void Game::AddNew() {
     int x = pos_dist(rng);
     int y = pos_dist(rng);
     while(state[x][y] != 0) {
-        std::cout << "Need to find a new position";
+        // std::cout << "Need to find a new position" << std::endl;
         x = pos_dist(rng);
         y = pos_dist(rng);
     }
@@ -80,6 +80,76 @@ int* Game::PossibleMoves() {
     return move_list;
 }
 
+
+void Game::MergeUp() {
+    for (int col = 0; col < 4; col++) {
+        std::vector<int> merged_column;
+        for (int i = 0; i < 4; i++) {
+            if (state[i][col] != 0) {
+                merged_column.push_back(state[i][col]);
+            }            
+        }
+        while (merged_column.size() < 4) {
+            merged_column.push_back(0);
+        }
+        for (int i = 0; i < 4; i++) {
+            state[i][col] = merged_column[i];
+        }
+    }
+}
+
+void Game::CompressUp() {
+    for (int col = 0; col < 4; col++) {
+        std::vector<int> compressed_column;
+        if (state[0][col] == state[1][col]) {
+            compressed_column.push_back(state[0][col] * 2);
+            score += state[0][col] * 2;
+            if (state[2][col] == state[3][col]) {
+                compressed_column.push_back(state[2][col] * 2);
+                compressed_column.push_back(0);
+                compressed_column.push_back(0);
+                score += state[2][col] * 2;
+            }
+            else {
+                compressed_column.push_back(state[2][col]);
+                compressed_column.push_back(state[3][col]);
+                compressed_column.push_back(0);
+            }
+        }
+        else if (state[1][col] == state[2][col]) {
+            compressed_column.push_back(state[0][col]);
+            compressed_column.push_back(state[1][col] * 2);
+            compressed_column.push_back(state[3][col]);
+            compressed_column.push_back(0);
+            score += state[1][col] * 2;
+        }
+        else if (state[2][col] == state[3][col]) {
+            compressed_column.push_back(state[0][col]);
+            compressed_column.push_back(state[1][col]);
+            compressed_column.push_back(state[2][col] * 2);
+            compressed_column.push_back(0);
+            score += state[2][col] * 2;
+        }
+        else {
+            compressed_column.push_back(state[0][col]);
+            compressed_column.push_back(state[1][col]);
+            compressed_column.push_back(state[2][col]);
+            compressed_column.push_back(state[3][col]);
+        }
+        for (int i = 0; i < 4; i++) {
+            state[i][col] = compressed_column[i];
+        }
+    }
+}
+
+void Game::HamburgerFlip() {
+    std::vector<std::vector<int>> flipped_state = {{}, {}, {}, {}};
+    for (int row = 3, i = 0; row >= 0; row--, i++) {
+        flipped_state[i] = state[row];
+    }
+    state = flipped_state;
+}
+
 void Game::Transpose() {
     std::vector<std::vector<int>> transposed_state = {{0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}};
     for (int i = 0; i < 4; i++) {
@@ -89,6 +159,33 @@ void Game::Transpose() {
     }
     // TODO: MAKE THIS RETURN TRANSPOSED STATE INSTEAD FOR MORE FLEXIBILITY???
     state = transposed_state;
+}
+
+void Game::Up() {
+    std::vector<std::vector<int>> prev_state = state;
+    MergeUp();
+    CompressUp();
+    if (state != prev_state) {
+        AddNew();
+    }
+}
+
+void Game::Down() {
+    HamburgerFlip();
+    Up();
+    HamburgerFlip();
+}
+
+void Game::Left() {
+    Transpose();
+    Up();
+    Transpose();
+}
+
+void Game::Right() {
+    Transpose();
+    Down();
+    Transpose();
 }
 
 std::ostream& operator<<(std::ostream &stream, Game &game) {
@@ -103,14 +200,37 @@ std::ostream& operator<<(std::ostream &stream, Game &game) {
 }
 
 int main(int argc, char** argv) {
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::uniform_int_distribution<> move_dist(0, 3);
     Game game = Game();
 
     game.AddNew();
     game.AddNew();
 
     std::cout << game;
-    game.Transpose();
-    std::cout << game;
+    // game.HamburgerFlip();
+    // std::cout << game;
+
+    // std::vector<int> v1 = {0, 1, 2, 3};
+    // std::vector<int> v2 = {0, 1, 2, 3};
+    // std::cout << (v1 == v2) << std::endl;
+    while(game.CanContinue()) {
+        int random_number = move_dist(rng);
+        if (random_number == 0) {
+            game.Up();
+        }
+        else if (random_number == 1) {
+            game.Down();
+        }
+        else if (random_number == 2) {
+            game.Right();
+        }
+        else {
+            game.Left();
+        }
+        std::cout << game;
+    }
 
     return 0;
 }

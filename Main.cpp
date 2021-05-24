@@ -6,24 +6,24 @@ int main(int argc, char** argv) {
 
     std::random_device rd;
     std::mt19937 rng(rd());
-    for(std::vector<int> moves=game.PossibleMoves(game.state); 
-                moves.size() > 0; moves=game.PossibleMoves(game.state)) {
+    for(std::vector<int> moves=game.PossibleMoves(); 
+                moves.size() > 0; moves=game.PossibleMoves()) {
         std::cout << game;
         std::uniform_int_distribution<> move_dist(0, moves.size());
         int random_number = moves[move_dist(rng)];
         for (int i = 0; i < moves.size(); i++) {
         }
         if (random_number == UP) {
-            game.state = game.Up(game.state, false);
+            game.Up(false);
         }
         else if (random_number == DOWN) {
-            game.state = game.Down(game.state, false);
+            game.Down(false);
         }
         else if (random_number == LEFT) {
-            game.state = game.Left(game.state, false);
+            game.Left(false);
         }
         else {
-            game.state = game.Right(game.state, false);
+            game.Right(false);
         }
         std::cout << std::endl;
     }

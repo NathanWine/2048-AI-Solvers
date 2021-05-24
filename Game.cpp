@@ -1,15 +1,5 @@
-// #include <iostream>
-// #include <string>
-// #include <ctime>
-// #include <cstdlib>
-// #include <random>
-// #include <vector>
-// #include <algorithm>
 #include "Game.hpp"
 // #include "MonteCarloSolver.hpp"
-
-// enum MOVES {UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3};
-// typedef std::vector<std::vector<int>> board;
 
 /**
  * Function to print 2D vectors (for debugging purposes)
@@ -24,40 +14,12 @@ void print_vec(board v) {
     std::cout << std::endl;
 }
 
-// class Game {
-//     protected:
-//         board AddNew(board m);
-//         board Transpose(board m);
-//         board MergeUp(board m);
-//         board CompressUp(board m, bool peek);
-//         board HamburgerFlip(board m);
-//     public: 
-//         board state;
-//         int score;
-//         int highest_tile;
-//         const int DIM;
-
-//         Game(int d=4) : DIM(d), score(0), highest_tile(0), state{{0, 0, 0, 0}, 
-//                                                                  {0, 0, 0, 0}, 
-//                                                                  {0, 0, 0, 0}, 
-//                                                                  {0, 0, 0, 0}} {
-//             state = AddNew(state);
-//             state = AddNew(state);
-//         }
-//         bool CanContinue(board m);
-//         std::vector<int> PossibleMoves(board m);
-//         board Up(board m, bool peek);
-//         board Left(board m, bool peek);
-//         board Right(board m, bool peek);
-//         board Down(board m, bool peek);
-// };
-
-board Game::AddNew(board m) {
+void Game::AddNew() {
     // Create vector of empty tiles
     std::vector<std::pair<int, int>> empty_tiles;
     for (int i = 0; i < DIM; i++) {
         for (int j = 0; j < DIM; j++) {
-            if (m[i][j] == 0) {
+            if (state[i][j] == 0) {
                 empty_tiles.push_back(std::pair<int, int>(i, j));
             }
         }
@@ -76,62 +38,64 @@ board Game::AddNew(board m) {
         // Generating a random value of 2 or 4 (weighted probability)
         std::uniform_int_distribution<> val_dist(0, 9);
         if (val_dist(rng) > 0) {
-            m[choice.first][choice.second] = 2;
+            state[choice.first][choice.second] = 2;
         }
         else {
-            m[choice.first][choice.second] = 4;
+            state[choice.first][choice.second] = 4;
         }
     }
-
-    return m;
 }
 
-bool Game::CanContinue(board m) {
+bool Game::CanContinue() {
     for (int i = 0; i < DIM; i++) {
         for (int j = 0; j < DIM; j++) {
-            if (m[i][j] == 0)
+            if (state[i][j] == 0)
                 return true;
-            if ((i < (DIM-1) && m[i][j] == m[i + 1][j]) || 
-                (j < (DIM-1) && m[i][j] == m[i][j + 1]))
+            if ((i < (DIM-1) && state[i][j] == state[i + 1][j]) || 
+                (j < (DIM-1) && state[i][j] == state[i][j + 1]))
                 return true;
         }
     }
     return false;
 }
 
-std::vector<int> Game::PossibleMoves(board m) {
+std::vector<int> Game::PossibleMoves() {
     std::vector<int> move_list;
-    if (CanContinue(m)) {
-        board up_copy = Up(m, true);
-        if (up_copy != m) {
+    if (CanContinue()) {
+        Game up_copy = *this;
+        up_copy.Up(true);
+        if (up_copy.state != state) {
             move_list.push_back(UP);
         }
 
-        board down_copy = Down(m, true);
-        if (down_copy != m) {
+        Game down_copy = *this;
+        down_copy.Down(true);
+        if (down_copy.state != state) {
             move_list.push_back(DOWN);
         }
 
-        board left_copy = Left(m, true);
-        if (left_copy != m) {
+        Game left_copy = *this;
+        left_copy.Left(true);
+        if (left_copy.state != state) {
             move_list.push_back(LEFT);
         }
 
-        board right_copy = Right(m, true);
-        if (right_copy != m) {
+        Game right_copy = *this;
+        right_copy.Right(true);
+        if (right_copy.state != state) {
             move_list.push_back(RIGHT);
         }
     }
     return move_list;
 }
 
-board Game::MergeUp(board m) {
-    board state_cpy = m;
+void Game::MergeUp() {
+    board state_cpy = state;
     for (int col = 0; col < DIM; col++) {
         std::vector<int> merged_column;
         for (int i = 0; i < DIM; i++) {
-            if (m[i][col] != 0) {
-                merged_column.push_back(m[i][col]);
+            if (state[i][col] != 0) {
+                merged_column.push_back(state[i][col]);
             }            
         }
         while (merged_column.size() < DIM) {
@@ -141,62 +105,62 @@ board Game::MergeUp(board m) {
             state_cpy[i][col] = merged_column[i];
         }
     }
-    return state_cpy;
+    state = state_cpy;
 }
 
-board Game::CompressUp(board m, bool peak=false) {
-    board state_cpy = m;
+void Game::CompressUp(bool peak) {
+    board state_cpy = state;
     for (int col = 0; col < DIM; col++) {
         std::vector<int> compressed_column;
-        if (m[0][col] == m[1][col]) {
-            compressed_column.push_back(m[0][col] * 2);
+        if (state[0][col] == state[1][col]) {
+            compressed_column.push_back(state[0][col] * 2);
             if (!peak) {
-                score += m[0][col] * 2;
-                if (m[0][col] * 2 > highest_tile) {
-                    highest_tile = m[0][col];
+                score += state[0][col] * 2;
+                if (state[0][col] * 2 > highest_tile) {
+                    highest_tile = state[0][col];
                 }
             }
-            if (m[2][col] == m[3][col]) {
-                compressed_column.push_back(m[2][col] * 2);
+            if (state[2][col] == state[3][col]) {
+                compressed_column.push_back(state[2][col] * 2);
                 if (!peak) {
-                    score += m[2][col] * 2;
-                    if (m[0][col] * 2 > highest_tile) {
-                        highest_tile = m[2][col];
+                    score += state[2][col] * 2;
+                    if (state[0][col] * 2 > highest_tile) {
+                        highest_tile = state[2][col];
                     }
                 }
             }
             else {
-                compressed_column.push_back(m[2][col]);
-                compressed_column.push_back(m[3][col]);
+                compressed_column.push_back(state[2][col]);
+                compressed_column.push_back(state[3][col]);
             }
         }
-        else if (m[1][col] == m[2][col]) {
-            compressed_column.push_back(m[0][col]);
-            compressed_column.push_back(m[1][col] * 2);
-            compressed_column.push_back(m[3][col]);
+        else if (state[1][col] == state[2][col]) {
+            compressed_column.push_back(state[0][col]);
+            compressed_column.push_back(state[1][col] * 2);
+            compressed_column.push_back(state[3][col]);
             if (!peak) {
-                score += m[1][col] * 2;
-                if (m[0][col] * 2 > highest_tile) {
-                    highest_tile = m[1][col];
+                score += state[1][col] * 2;
+                if (state[0][col] * 2 > highest_tile) {
+                    highest_tile = state[1][col];
                 }
             }
         }
-        else if (m[2][col] == m[3][col]) {
-            compressed_column.push_back(m[0][col]);
-            compressed_column.push_back(m[1][col]);
-            compressed_column.push_back(m[2][col] * 2);
+        else if (state[2][col] == state[3][col]) {
+            compressed_column.push_back(state[0][col]);
+            compressed_column.push_back(state[1][col]);
+            compressed_column.push_back(state[2][col] * 2);
             if (!peak) {
-                score += m[2][col] * 2;
-                if (m[0][col] * 2 > highest_tile) {
-                    highest_tile = m[2][col];
+                score += state[2][col] * 2;
+                if (state[0][col] * 2 > highest_tile) {
+                    highest_tile = state[2][col];
                 }
             }
         }
         else {
-            compressed_column.push_back(m[0][col]);
-            compressed_column.push_back(m[1][col]);
-            compressed_column.push_back(m[2][col]);
-            compressed_column.push_back(m[3][col]);
+            compressed_column.push_back(state[0][col]);
+            compressed_column.push_back(state[1][col]);
+            compressed_column.push_back(state[2][col]);
+            compressed_column.push_back(state[3][col]);
         }
         while(compressed_column.size() < DIM) {
             compressed_column.push_back(0);
@@ -205,59 +169,52 @@ board Game::CompressUp(board m, bool peak=false) {
             state_cpy[i][col] = compressed_column[i];
         }
     }
-    return state_cpy;
+    state = state_cpy;
 }
 
-board Game::HamburgerFlip(board m) {
+void Game::HamburgerFlip() {
     board flipped_state = {{}, {}, {}, {}};
     for (int row = (DIM-1), i = 0; row >= 0; row--, i++) {
-        flipped_state[i] = m[row];
+        flipped_state[i] = state[row];
     }
-    return flipped_state;
+    state = flipped_state;
 }
 
-board Game::Transpose(board m) {
+void Game::Transpose() {
     board transposed_state = {{0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}};
     for (int i = 0; i < DIM; i++) {
         for (int j = 0; j < DIM; j++) {
-            transposed_state[i][j] = m[j][i];
+            transposed_state[i][j] = state[j][i];
         }
     }
-    return transposed_state;
+    state = transposed_state;
 }
 
-board Game::Up(board m, bool peak = false) {
-    board prev_state = m;
-    prev_state = MergeUp(prev_state);
-    prev_state = CompressUp(prev_state);
+void Game::Up(bool peak) {
+    board prev_state = state;
+    MergeUp();
+    CompressUp(peak);
     if (state != prev_state) {
-        prev_state = AddNew(prev_state);
+        AddNew();
     }
-    return prev_state;
 }
 
-board Game::Down(board m, bool peak = false) {
-    board prev_state = m;
-    prev_state = HamburgerFlip(prev_state);
-    prev_state = Up(prev_state);
-    prev_state = HamburgerFlip(prev_state);
-    return prev_state;
+void Game::Down(bool peak) {
+    HamburgerFlip();
+    Up(peak);
+    HamburgerFlip();
 }
 
-board Game::Left(board m, bool peak = false) {
-    board prev_state = m;
-    prev_state = Transpose(prev_state);
-    prev_state = Up(prev_state);
-    prev_state = Transpose(prev_state);
-    return prev_state;
+void Game::Left(bool peak) {
+    Transpose();
+    Up(peak);
+    Transpose();
 }
 
-board Game::Right(board m, bool peak = false) {
-    board prev_state = m;
-    prev_state = Transpose(prev_state);
-    prev_state = Down(prev_state);
-    prev_state = Transpose(prev_state);
-    return prev_state;
+void Game::Right(bool peak) {
+    Transpose();
+    Down(peak);
+    Transpose();
 }
 
 std::ostream& operator<<(std::ostream &stream, Game &game) {

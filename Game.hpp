@@ -7,11 +7,11 @@ typedef std::vector<std::vector<int>> board;
 
 class Game {
     protected:
-        board AddNew(board m);
-        board Transpose(board m);
-        board MergeUp(board m);
-        board CompressUp(board m, bool peek);
-        board HamburgerFlip(board m);
+        void AddNew();
+        void Transpose();
+        void MergeUp();
+        void CompressUp(bool peak);
+        void HamburgerFlip();
     public: 
         board state;
         int score;
@@ -22,14 +22,14 @@ class Game {
                                                                  {0, 0, 0, 0}, 
                                                                  {0, 0, 0, 0}, 
                                                                  {0, 0, 0, 0}} {
-            state = AddNew(state);
-            state = AddNew(state);
+            AddNew();
+            AddNew();
         }
-        bool CanContinue(board m);
-        std::vector<int> PossibleMoves(board m);
-        board Up(board m, bool peek);
-        board Left(board m, bool peek);
-        board Right(board m, bool peek);
-        board Down(board m, bool peek);
+        bool CanContinue();
+        std::vector<int> PossibleMoves();
+        void Up(bool peak);
+        void Left(bool peak);
+        void Right(bool peak);
+        void Down(bool peak);
         friend std::ostream& operator<<(std::ostream &stream, Game &game);
 };

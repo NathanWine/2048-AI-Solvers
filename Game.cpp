@@ -7,11 +7,12 @@
 #include <algorithm>
 
 enum MOVES {UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3};
+typedef std::vector<std::vector<int>> board;
 
 /**
  * Function to print 2D vectors (for debugging purposes)
  */
-void print_vec(std::vector<std::vector<int>> v) {
+void print_vec(board v) {
     for (int i = 0; i < v.size(); i++) {
         for (int j = 0; j < v[i].size(); j++) {
             std::cout << v[i][j] << " ";
@@ -23,13 +24,13 @@ void print_vec(std::vector<std::vector<int>> v) {
 
 class Game {
     protected:
-        std::vector<std::vector<int>> AddNew(std::vector<std::vector<int>> m);
-        std::vector<std::vector<int>> Transpose(std::vector<std::vector<int>> m);
-        std::vector<std::vector<int>> MergeUp(std::vector<std::vector<int>> m);
-        std::vector<std::vector<int>> CompressUp(std::vector<std::vector<int>> m);
-        std::vector<std::vector<int>> HamburgerFlip(std::vector<std::vector<int>> m);
+        board AddNew(board m);
+        board Transpose(board m);
+        board MergeUp(board m);
+        board CompressUp(board m, bool peek);
+        board HamburgerFlip(board m);
     public: 
-        std::vector<std::vector<int>> state;
+        board state;
         int score;
         int highest_tile;
         const int DIM;
@@ -41,15 +42,15 @@ class Game {
             state = AddNew(state);
             state = AddNew(state);
         }
-        bool CanContinue(std::vector<std::vector<int>> m);
-        std::vector<int> PossibleMoves(std::vector<std::vector<int>> m);
-        std::vector<std::vector<int>> Up(std::vector<std::vector<int>> m);
-        std::vector<std::vector<int>> Left(std::vector<std::vector<int>> m);
-        std::vector<std::vector<int>> Right(std::vector<std::vector<int>> m);
-        std::vector<std::vector<int>> Down(std::vector<std::vector<int>> m);
+        bool CanContinue(board m);
+        std::vector<int> PossibleMoves(board m);
+        board Up(board m, bool peek);
+        board Left(board m, bool peek);
+        board Right(board m, bool peek);
+        board Down(board m, bool peek);
 };
 
-std::vector<std::vector<int>> Game::AddNew(std::vector<std::vector<int>> m) {
+board Game::AddNew(board m) {
     // Create vector of empty tiles
     std::vector<std::pair<int, int>> empty_tiles;
     for (int i = 0; i < DIM; i++) {
@@ -83,7 +84,7 @@ std::vector<std::vector<int>> Game::AddNew(std::vector<std::vector<int>> m) {
     return m;
 }
 
-bool Game::CanContinue(std::vector<std::vector<int>> m) {
+bool Game::CanContinue(board m) {
     for (int i = 0; i < DIM; i++) {
         for (int j = 0; j < DIM; j++) {
             if (m[i][j] == 0)
@@ -96,25 +97,25 @@ bool Game::CanContinue(std::vector<std::vector<int>> m) {
     return false;
 }
 
-std::vector<int> Game::PossibleMoves(std::vector<std::vector<int>> m) {
+std::vector<int> Game::PossibleMoves(board m) {
     std::vector<int> move_list;
     if (CanContinue(m)) {
-        std::vector<std::vector<int>> up_copy = Up(m);
+        board up_copy = Up(m, true);
         if (up_copy != m) {
             move_list.push_back(UP);
         }
 
-        std::vector<std::vector<int>> down_copy = Down(m);
+        board down_copy = Down(m, true);
         if (down_copy != m) {
             move_list.push_back(DOWN);
         }
 
-        std::vector<std::vector<int>> left_copy = Left(m);
+        board left_copy = Left(m, true);
         if (left_copy != m) {
             move_list.push_back(LEFT);
         }
 
-        std::vector<std::vector<int>> right_copy = Right(m);
+        board right_copy = Right(m, true);
         if (right_copy != m) {
             move_list.push_back(RIGHT);
         }
@@ -122,8 +123,8 @@ std::vector<int> Game::PossibleMoves(std::vector<std::vector<int>> m) {
     return move_list;
 }
 
-std::vector<std::vector<int>> Game::MergeUp(std::vector<std::vector<int>> m) {
-    std::vector<std::vector<int>> state_cpy = m;
+board Game::MergeUp(board m) {
+    board state_cpy = m;
     for (int col = 0; col < DIM; col++) {
         std::vector<int> merged_column;
         for (int i = 0; i < DIM; i++) {
@@ -141,16 +142,26 @@ std::vector<std::vector<int>> Game::MergeUp(std::vector<std::vector<int>> m) {
     return state_cpy;
 }
 
-std::vector<std::vector<int>> Game::CompressUp(std::vector<std::vector<int>> m) {
-    std::vector<std::vector<int>> state_cpy = m;
+board Game::CompressUp(board m, bool peak=false) {
+    board state_cpy = m;
     for (int col = 0; col < DIM; col++) {
         std::vector<int> compressed_column;
         if (m[0][col] == m[1][col]) {
             compressed_column.push_back(m[0][col] * 2);
-            score += m[0][col] * 2;
+            if (!peak) {
+                score += m[0][col] * 2;
+                if (m[0][col] * 2 > highest_tile) {
+                    highest_tile = m[0][col];
+                }
+            }
             if (m[2][col] == m[3][col]) {
                 compressed_column.push_back(m[2][col] * 2);
-                score += m[2][col] * 2;
+                if (!peak) {
+                    score += m[2][col] * 2;
+                    if (m[0][col] * 2 > highest_tile) {
+                        highest_tile = m[2][col];
+                    }
+                }
             }
             else {
                 compressed_column.push_back(m[2][col]);
@@ -161,13 +172,23 @@ std::vector<std::vector<int>> Game::CompressUp(std::vector<std::vector<int>> m) 
             compressed_column.push_back(m[0][col]);
             compressed_column.push_back(m[1][col] * 2);
             compressed_column.push_back(m[3][col]);
-            score += m[1][col] * 2;
+            if (!peak) {
+                score += m[1][col] * 2;
+                if (m[0][col] * 2 > highest_tile) {
+                    highest_tile = m[1][col];
+                }
+            }
         }
         else if (m[2][col] == m[3][col]) {
             compressed_column.push_back(m[0][col]);
             compressed_column.push_back(m[1][col]);
             compressed_column.push_back(m[2][col] * 2);
-            score += m[2][col] * 2;
+            if (!peak) {
+                score += m[2][col] * 2;
+                if (m[0][col] * 2 > highest_tile) {
+                    highest_tile = m[2][col];
+                }
+            }
         }
         else {
             compressed_column.push_back(m[0][col]);
@@ -185,16 +206,16 @@ std::vector<std::vector<int>> Game::CompressUp(std::vector<std::vector<int>> m) 
     return state_cpy;
 }
 
-std::vector<std::vector<int>> Game::HamburgerFlip(std::vector<std::vector<int>> m) {
-    std::vector<std::vector<int>> flipped_state = {{}, {}, {}, {}};
+board Game::HamburgerFlip(board m) {
+    board flipped_state = {{}, {}, {}, {}};
     for (int row = (DIM-1), i = 0; row >= 0; row--, i++) {
         flipped_state[i] = m[row];
     }
     return flipped_state;
 }
 
-std::vector<std::vector<int>> Game::Transpose(std::vector<std::vector<int>> m) {
-    std::vector<std::vector<int>> transposed_state = {{0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}};
+board Game::Transpose(board m) {
+    board transposed_state = {{0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}};
     for (int i = 0; i < DIM; i++) {
         for (int j = 0; j < DIM; j++) {
             transposed_state[i][j] = m[j][i];
@@ -203,8 +224,8 @@ std::vector<std::vector<int>> Game::Transpose(std::vector<std::vector<int>> m) {
     return transposed_state;
 }
 
-std::vector<std::vector<int>> Game::Up(std::vector<std::vector<int>> m) {
-    std::vector<std::vector<int>> prev_state = m;
+board Game::Up(board m, bool peak = false) {
+    board prev_state = m;
     prev_state = MergeUp(prev_state);
     prev_state = CompressUp(prev_state);
     if (state != prev_state) {
@@ -213,24 +234,24 @@ std::vector<std::vector<int>> Game::Up(std::vector<std::vector<int>> m) {
     return prev_state;
 }
 
-std::vector<std::vector<int>> Game::Down(std::vector<std::vector<int>> m) {
-    std::vector<std::vector<int>> prev_state = m;
+board Game::Down(board m, bool peak = false) {
+    board prev_state = m;
     prev_state = HamburgerFlip(prev_state);
     prev_state = Up(prev_state);
     prev_state = HamburgerFlip(prev_state);
     return prev_state;
 }
 
-std::vector<std::vector<int>> Game::Left(std::vector<std::vector<int>> m) {
-    std::vector<std::vector<int>> prev_state = m;
+board Game::Left(board m, bool peak = false) {
+    board prev_state = m;
     prev_state = Transpose(prev_state);
     prev_state = Up(prev_state);
     prev_state = Transpose(prev_state);
     return prev_state;
 }
 
-std::vector<std::vector<int>> Game::Right(std::vector<std::vector<int>> m) {
-    std::vector<std::vector<int>> prev_state = m;
+board Game::Right(board m, bool peak = false) {
+    board prev_state = m;
     prev_state = Transpose(prev_state);
     prev_state = Down(prev_state);
     prev_state = Transpose(prev_state);

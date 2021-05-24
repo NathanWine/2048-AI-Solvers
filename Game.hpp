@@ -7,29 +7,29 @@ typedef std::vector<std::vector<int>> board;
 
 class Game {
     protected:
-        void AddNew();
-        void Transpose();
-        void MergeUp();
-        void CompressUp(bool peak);
-        void HamburgerFlip();
+        void addNew();
+        void transpose();
+        void mergeUp();
+        void compressUp(bool peak);
+        void hamburgerFlip();
     public: 
         board state;
         int score;
-        int highest_tile;
         const int DIM;
 
-        Game(int d=4) : DIM(d), score(0), highest_tile(0), state{{0, 0, 0, 0}, 
-                                                                 {0, 0, 0, 0}, 
-                                                                 {0, 0, 0, 0}, 
-                                                                 {0, 0, 0, 0}} {
-            AddNew();
-            AddNew();
+        Game(int d=4) : DIM(d), score(0), state{{0, 0, 0, 0}, 
+                                                {0, 0, 0, 0}, 
+                                                {0, 0, 0, 0}, 
+                                                {0, 0, 0, 0}} {
+            addNew();
+            addNew();
         }
-        bool CanContinue();
-        std::vector<int> PossibleMoves();
-        void Up(bool peak);
-        void Left(bool peak);
-        void Right(bool peak);
-        void Down(bool peak);
+        bool canContinue();
+        std::vector<int> possibleMoves();
+        void up(bool peak);
+        void left(bool peak);
+        void right(bool peak);
+        void down(bool peak);
+        int getHighestTile();
         friend std::ostream& operator<<(std::ostream &stream, Game &game);
 };

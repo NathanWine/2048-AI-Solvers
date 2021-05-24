@@ -6,31 +6,28 @@ int main(int argc, char** argv) {
 
     std::random_device rd;
     std::mt19937 rng(rd());
-    for(std::vector<int> moves=game.PossibleMoves(); 
-                moves.size() > 0; moves=game.PossibleMoves()) {
-        std::cout << game;
+    for(std::vector<int> moves=game.possibleMoves(); 
+                moves.size() > 0; moves=game.possibleMoves()) {
+        // std::cout << game;
         std::uniform_int_distribution<> move_dist(0, moves.size());
         int random_number = moves[move_dist(rng)];
         for (int i = 0; i < moves.size(); i++) {
         }
         if (random_number == UP) {
-            game.Up(false);
+            game.up(false);
         }
         else if (random_number == DOWN) {
-            game.Down(false);
+            game.down(false);
         }
         else if (random_number == LEFT) {
-            game.Left(false);
+            game.left(false);
         }
         else {
-            game.Right(false);
+            game.right(false);
         }
-        std::cout << std::endl;
+        // std::cout << std::endl;
     }
-
-    // std::vector<int> v = {1, 2, 3, 10};
-    // int largest_value = *std::max_element(v.begin(), v.end());
-    // std::cout << "largest_value is:" << largest_value << std::endl;
+    std::cout << game << std::endl;
 
     return 0;
 }

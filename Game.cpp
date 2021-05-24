@@ -1,13 +1,15 @@
-#include <iostream>
-#include <string>
-#include <ctime>
-#include <cstdlib>
-#include <random>
-#include <vector>
-#include <algorithm>
+// #include <iostream>
+// #include <string>
+// #include <ctime>
+// #include <cstdlib>
+// #include <random>
+// #include <vector>
+// #include <algorithm>
+#include "Game.hpp"
+// #include "MonteCarloSolver.hpp"
 
-enum MOVES {UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3};
-typedef std::vector<std::vector<int>> board;
+// enum MOVES {UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3};
+// typedef std::vector<std::vector<int>> board;
 
 /**
  * Function to print 2D vectors (for debugging purposes)
@@ -22,33 +24,33 @@ void print_vec(board v) {
     std::cout << std::endl;
 }
 
-class Game {
-    protected:
-        board AddNew(board m);
-        board Transpose(board m);
-        board MergeUp(board m);
-        board CompressUp(board m, bool peek);
-        board HamburgerFlip(board m);
-    public: 
-        board state;
-        int score;
-        int highest_tile;
-        const int DIM;
+// class Game {
+//     protected:
+//         board AddNew(board m);
+//         board Transpose(board m);
+//         board MergeUp(board m);
+//         board CompressUp(board m, bool peek);
+//         board HamburgerFlip(board m);
+//     public: 
+//         board state;
+//         int score;
+//         int highest_tile;
+//         const int DIM;
 
-        Game(int d=4) : DIM(d), score(0), highest_tile(0), state{{0, 0, 0, 0}, 
-                                                                 {0, 0, 0, 0}, 
-                                                                 {0, 0, 0, 0}, 
-                                                                 {0, 0, 0, 0}} {
-            state = AddNew(state);
-            state = AddNew(state);
-        }
-        bool CanContinue(board m);
-        std::vector<int> PossibleMoves(board m);
-        board Up(board m, bool peek);
-        board Left(board m, bool peek);
-        board Right(board m, bool peek);
-        board Down(board m, bool peek);
-};
+//         Game(int d=4) : DIM(d), score(0), highest_tile(0), state{{0, 0, 0, 0}, 
+//                                                                  {0, 0, 0, 0}, 
+//                                                                  {0, 0, 0, 0}, 
+//                                                                  {0, 0, 0, 0}} {
+//             state = AddNew(state);
+//             state = AddNew(state);
+//         }
+//         bool CanContinue(board m);
+//         std::vector<int> PossibleMoves(board m);
+//         board Up(board m, bool peek);
+//         board Left(board m, bool peek);
+//         board Right(board m, bool peek);
+//         board Down(board m, bool peek);
+// };
 
 board Game::AddNew(board m) {
     // Create vector of empty tiles
@@ -267,40 +269,4 @@ std::ostream& operator<<(std::ostream &stream, Game &game) {
         str += "\n";
     }
     return stream << "Score: " + std::to_string(game.score) << std::endl << str;
-}
-
-int main(int argc, char** argv) {
-    Game game = Game();
-    std::cout << game << std::endl;
-
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    for(std::vector<int> moves=game.PossibleMoves(game.state); 
-                moves.size() > 0; moves=game.PossibleMoves(game.state)) {
-        std::cout << game;
-        std::uniform_int_distribution<> move_dist(0, moves.size());
-        int random_number = moves[move_dist(rng)];
-        for (int i = 0; i < moves.size(); i++) {
-        }
-        if (random_number == UP) {
-            game.state = game.Up(game.state);
-        }
-        else if (random_number == DOWN) {
-            game.state = game.Down(game.state);
-        }
-        else if (random_number == LEFT) {
-            game.state = game.Left(game.state);
-        }
-        else {
-            game.state = game.Right(game.state);
-        }
-        std::cout << std::endl;
-    }
-
-
-    // std::vector<int> v = {1, 2, 3, 10};
-    // int largest_value = *std::max_element(v.begin(), v.end());
-    // std::cout << "largest_value is:" << largest_value << std::endl;
-
-    return 0;
 }

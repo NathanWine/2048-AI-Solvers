@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "MonteCarloSolver.hpp"
 
 int main(int argc, char** argv) {
     Game game = Game();

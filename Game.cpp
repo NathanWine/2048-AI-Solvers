@@ -1,5 +1,4 @@
 #include "Game.hpp"
-// #include "MonteCarloSolver.hpp"
 
 /**
  * Function to print 2D vectors (for debugging purposes)
@@ -16,7 +15,8 @@ void print_vec(board v) {
 
 /**
  * Binary search function for determining the number of digits in a number
- * (more efficient than the log method, https://stackoverflow.com/questions/1489830/efficient-way-to-determine-number-of-digits-in-an-integer)
+ * (more efficient than the log method) 
+ * from: https://stackoverflow.com/questions/1489830/efficient-way-to-determine-number-of-digits-in-an-integer
  */
 int numDigits(int32_t x)
 {

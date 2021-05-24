@@ -1,3 +1,6 @@
+#ifndef GAME_H
+#define GAME_H
+
 #include <vector>
 #include <iostream>
 #include <random>
@@ -33,3 +36,5 @@ class Game {
         int getHighestTile();
         friend std::ostream& operator<<(std::ostream &stream, Game &game);
 };
+
+#endif

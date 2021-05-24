@@ -4,6 +4,22 @@
 #include <cstdlib>
 #include <random>
 #include <vector>
+#include <algorithm>
+
+enum MOVES {UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3};
+
+/**
+ * Function to print 2D vectors (for debugging purposes)
+ */
+void print_vec(std::vector<std::vector<int>> v) {
+    for (int i = 0; i < v.size(); i++) {
+        for (int j = 0; j < v[i].size(); j++) {
+            std::cout << v[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
 
 class Game {
     protected:
@@ -26,37 +42,44 @@ class Game {
             state = AddNew(state);
         }
         bool CanContinue(std::vector<std::vector<int>> m);
-        int* PossibleMoves();
-        std::vector<std::vector<int>> Up();
-        std::vector<std::vector<int>> Left();
-        std::vector<std::vector<int>> Right();
-        std::vector<std::vector<int>> Down();
+        std::vector<int> PossibleMoves(std::vector<std::vector<int>> m);
+        std::vector<std::vector<int>> Up(std::vector<std::vector<int>> m);
+        std::vector<std::vector<int>> Left(std::vector<std::vector<int>> m);
+        std::vector<std::vector<int>> Right(std::vector<std::vector<int>> m);
+        std::vector<std::vector<int>> Down(std::vector<std::vector<int>> m);
 };
 
 std::vector<std::vector<int>> Game::AddNew(std::vector<std::vector<int>> m) {
-    // Initialize rng device with random seed
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    std::uniform_int_distribution<> pos_dist(0, DIM-1);
-
-    // Generating a random position
-    // TODO: FIND A BETTER METHOD OF GETTING A RANDOM EMPTY TILE
-    int x = pos_dist(rng);
-    int y = pos_dist(rng);
-    while(m[x][y] != 0) {
-        // std::cout << "Need to find a new position" << std::endl;
-        x = pos_dist(rng);
-        y = pos_dist(rng);
+    // Create vector of empty tiles
+    std::vector<std::pair<int, int>> empty_tiles;
+    for (int i = 0; i < DIM; i++) {
+        for (int j = 0; j < DIM; j++) {
+            if (m[i][j] == 0) {
+                empty_tiles.push_back(std::pair<int, int>(i, j));
+            }
+        }
     }
 
-    // Generating a random value of 2 or 4 (weighted probability)
-    std::uniform_int_distribution<> val_dist(0, 9);
-    if (val_dist(rng) > 0) {
-        m[x][y] = 2;
+    int size = empty_tiles.size();
+    if (size > 0) {
+        // Initialize rng device with random seed
+        std::random_device rd;
+        std::mt19937 rng(rd());
+
+        // Get random empty tile coordinates
+        std::uniform_int_distribution<> pos_dist(0, size - 1);
+        std::pair<int, int> choice = empty_tiles[pos_dist(rng)];
+
+        // Generating a random value of 2 or 4 (weighted probability)
+        std::uniform_int_distribution<> val_dist(0, 9);
+        if (val_dist(rng) > 0) {
+            m[choice.first][choice.second] = 2;
+        }
+        else {
+            m[choice.first][choice.second] = 4;
+        }
     }
-    else {
-        m[x][y] = 4;
-    }
+
     return m;
 }
 
@@ -73,18 +96,31 @@ bool Game::CanContinue(std::vector<std::vector<int>> m) {
     return false;
 }
 
-int* Game::PossibleMoves() {
-    // if (!CanContinue())
-    //     return [-1];
-    
-    int* move_list = {};
+std::vector<int> Game::PossibleMoves(std::vector<std::vector<int>> m) {
+    std::vector<int> move_list;
+    if (CanContinue(m)) {
+        std::vector<std::vector<int>> up_copy = Up(m);
+        if (up_copy != m) {
+            move_list.push_back(UP);
+        }
 
-    // left_copy = 
-    // Transpose();
+        std::vector<std::vector<int>> down_copy = Down(m);
+        if (down_copy != m) {
+            move_list.push_back(DOWN);
+        }
 
+        std::vector<std::vector<int>> left_copy = Left(m);
+        if (left_copy != m) {
+            move_list.push_back(LEFT);
+        }
+
+        std::vector<std::vector<int>> right_copy = Right(m);
+        if (right_copy != m) {
+            move_list.push_back(RIGHT);
+        }
+    }
     return move_list;
 }
-
 
 std::vector<std::vector<int>> Game::MergeUp(std::vector<std::vector<int>> m) {
     std::vector<std::vector<int>> state_cpy = m;
@@ -167,8 +203,8 @@ std::vector<std::vector<int>> Game::Transpose(std::vector<std::vector<int>> m) {
     return transposed_state;
 }
 
-std::vector<std::vector<int>> Game::Up() {
-    std::vector<std::vector<int>> prev_state = state;
+std::vector<std::vector<int>> Game::Up(std::vector<std::vector<int>> m) {
+    std::vector<std::vector<int>> prev_state = m;
     prev_state = MergeUp(prev_state);
     prev_state = CompressUp(prev_state);
     if (state != prev_state) {
@@ -177,26 +213,26 @@ std::vector<std::vector<int>> Game::Up() {
     return prev_state;
 }
 
-std::vector<std::vector<int>> Game::Down() {
-    std::vector<std::vector<int>> prev_state = state;
+std::vector<std::vector<int>> Game::Down(std::vector<std::vector<int>> m) {
+    std::vector<std::vector<int>> prev_state = m;
     prev_state = HamburgerFlip(prev_state);
-    prev_state = Up();
+    prev_state = Up(prev_state);
     prev_state = HamburgerFlip(prev_state);
     return prev_state;
 }
 
-std::vector<std::vector<int>> Game::Left() {
-    std::vector<std::vector<int>> prev_state = state;
+std::vector<std::vector<int>> Game::Left(std::vector<std::vector<int>> m) {
+    std::vector<std::vector<int>> prev_state = m;
     prev_state = Transpose(prev_state);
-    prev_state = Up();
+    prev_state = Up(prev_state);
     prev_state = Transpose(prev_state);
     return prev_state;
 }
 
-std::vector<std::vector<int>> Game::Right() {
-    std::vector<std::vector<int>> prev_state = state;
+std::vector<std::vector<int>> Game::Right(std::vector<std::vector<int>> m) {
+    std::vector<std::vector<int>> prev_state = m;
     prev_state = Transpose(prev_state);
-    prev_state = Down();
+    prev_state = Down(prev_state);
     prev_state = Transpose(prev_state);
     return prev_state;
 }
@@ -214,27 +250,36 @@ std::ostream& operator<<(std::ostream &stream, Game &game) {
 
 int main(int argc, char** argv) {
     Game game = Game();
-    std::cout << game;
+    std::cout << game << std::endl;
 
     std::random_device rd;
     std::mt19937 rng(rd());
-    std::uniform_int_distribution<> move_dist(0, 3);
-    while(game.CanContinue(game.state)) {
-        int random_number = move_dist(rng);
-        if (random_number == 0) {
-            game.state = game.Up();
+    for(std::vector<int> moves=game.PossibleMoves(game.state); 
+                moves.size() > 0; moves=game.PossibleMoves(game.state)) {
+        std::cout << game;
+        std::uniform_int_distribution<> move_dist(0, moves.size());
+        int random_number = moves[move_dist(rng)];
+        for (int i = 0; i < moves.size(); i++) {
         }
-        else if (random_number == 1) {
-            game.state = game.Down();
+        if (random_number == UP) {
+            game.state = game.Up(game.state);
         }
-        else if (random_number == 2) {
-            game.state = game.Right();
+        else if (random_number == DOWN) {
+            game.state = game.Down(game.state);
+        }
+        else if (random_number == LEFT) {
+            game.state = game.Left(game.state);
         }
         else {
-            game.state = game.Left();
+            game.state = game.Right(game.state);
         }
-        std::cout << game << std::endl;
+        std::cout << std::endl;
     }
+
+
+    // std::vector<int> v = {1, 2, 3, 10};
+    // int largest_value = *std::max_element(v.begin(), v.end());
+    // std::cout << "largest_value is:" << largest_value << std::endl;
 
     return 0;
 }

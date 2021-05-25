@@ -14,9 +14,6 @@ std::uniform_int_distribution<> DISTS[] = {             // Really ugly...
     std::uniform_int_distribution<>(0, 13), std::uniform_int_distribution<>(0, 15),
 };
 
-
-
-
 /**
  * Function to print 2D vectors (for debugging purposes)
  */

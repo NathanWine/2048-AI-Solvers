@@ -1,35 +1,33 @@
 #include "MonteCarloSolver.hpp"
 
+std::uniform_int_distribution<> a(0, 0);
+std::uniform_int_distribution<> b(0, 1);
+std::uniform_int_distribution<> c(0, 2);
+std::uniform_int_distribution<> d(0, 3);
+std::uniform_int_distribution<> DISTS[] = {a, b, c, d};
+
 std::pair<int, int> simulateOneRun(Game game) {
     Game game_cpy = game;
     int first_move = -1;
-    std::random_device rd;
-    std::mt19937 rng(rd());
 
     while(game_cpy.canContinue()) {
         board before_state = game_cpy.state;
         std::vector<int> move_bank = {UP, DOWN, LEFT, RIGHT};
 
         while (before_state == game_cpy.state) {
-            std::uniform_int_distribution<> move_dist(0, move_bank.size() - 1);
-            int random_pos = move_dist(rng);
+            int random_pos = DISTS[move_bank.size() - 1](rng);
             int chosen_move = move_bank[random_pos];
 
-            if (chosen_move == UP) {
+            if (chosen_move == UP)
                 game_cpy.up(false);
-            }
-            else if (chosen_move == DOWN) {
+            else if (chosen_move == DOWN)
                 game_cpy.down(false);
-            }
-            else if (chosen_move == LEFT) {
+            else if (chosen_move == LEFT)
                 game_cpy.left(false);
-            }
-            else {
+            else
                 game_cpy.right(false);
-            }
-            if (first_move == -1) {
+            if (first_move == -1)
                 first_move = chosen_move;
-            }
 
             move_bank.erase(move_bank.begin() + random_pos);
         }

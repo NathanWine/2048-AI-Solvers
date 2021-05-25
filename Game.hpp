@@ -8,6 +8,10 @@
 enum MOVES {UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3};
 typedef std::vector<std::vector<int>> board;
 
+extern std::random_device rd;
+extern std::mt19937 rng;
+extern std::uniform_int_distribution<> val_dist;
+
 class Game {
     protected:
         void addNew();

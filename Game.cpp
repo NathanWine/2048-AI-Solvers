@@ -1,5 +1,10 @@
 #include "Game.hpp"
 
+// Initialize rng device with random seed
+std::random_device rd;
+std::mt19937 rng(rd());
+std::uniform_int_distribution<> val_dist(0, 9);
+
 /**
  * Function to print 2D vectors (for debugging purposes)
  */
@@ -59,16 +64,11 @@ void Game::addNew() {
 
     int size = empty_tiles.size();
     if (size > 0) {
-        // Initialize rng device with random seed
-        std::random_device rd;
-        std::mt19937 rng(rd());
-
         // Get random empty tile coordinates
         std::uniform_int_distribution<> pos_dist(0, size - 1);
         std::pair<int, int> choice = empty_tiles[pos_dist(rng)];
 
         // Generating a random value of 2 or 4 (weighted probability)
-        std::uniform_int_distribution<> val_dist(0, 9);
         if (val_dist(rng) > 0) {
             state[choice.first][choice.second] = 2;
         }

@@ -1,11 +1,5 @@
 #include "MonteCarloSolver.hpp"
 
-std::uniform_int_distribution<> a(0, 0);
-std::uniform_int_distribution<> b(0, 1);
-std::uniform_int_distribution<> c(0, 2);
-std::uniform_int_distribution<> d(0, 3);
-std::uniform_int_distribution<> DISTS[] = {a, b, c, d};
-
 std::pair<int, int> simulateOneRun(Game game) {
     Game game_cpy = game;
     int first_move = -1;
@@ -43,7 +37,7 @@ std::pair<int, int> monteCarloSimulateGame(int runs) {
         int scores[4] = {0, 0, 0, 0};
         int counter[4] = {0, 0, 0, 0};
 
-        for (int i = 0; i < runs; i++) {
+        for (int i = 0; i < runs; ++i) {
             std::pair<int, int> res = simulateOneRun(game);
             scores[res.first] += res.second;
             counter[res.first] += 1;
@@ -51,7 +45,7 @@ std::pair<int, int> monteCarloSimulateGame(int runs) {
 
         int best_avg_score = 0;
         int best_move = UP;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; ++i) {
             int move = i;
             if (counter[move] != 0 && ((float) scores[move] / counter[move]) > best_avg_score) {
                 best_avg_score = (float) scores[move] / counter[move];
@@ -87,7 +81,7 @@ void monteCarloSolve(int n, int runs, int win=2048) {
     std::vector<int> scores;
     std::vector<int> highest_tiles;
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; ++i) {
         attempts++;
         std::pair<int, int> result = monteCarloSimulateGame(runs);
         if (result.first >= win) {

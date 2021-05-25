@@ -1,16 +1,28 @@
 #include "Game.hpp"
 
-// Initialize rng device with random seed
+// Initialize rnd devices and distributions
 std::random_device rd;
 std::mt19937 rng(rd());
-std::uniform_int_distribution<> val_dist(0, 9);
+std::uniform_int_distribution<> DISTS[] = {             // Really ugly...
+    std::uniform_int_distribution<>(0, 0), std::uniform_int_distribution<>(0, 1), 
+    std::uniform_int_distribution<>(0, 2), std::uniform_int_distribution<>(0, 3),
+    std::uniform_int_distribution<>(0, 4), std::uniform_int_distribution<>(0, 5), 
+    std::uniform_int_distribution<>(0, 6), std::uniform_int_distribution<>(0, 7),
+    std::uniform_int_distribution<>(0, 8), std::uniform_int_distribution<>(0, 9), 
+    std::uniform_int_distribution<>(0, 10), std::uniform_int_distribution<>(0, 11),
+    std::uniform_int_distribution<>(0, 12), std::uniform_int_distribution<>(0, 13), 
+    std::uniform_int_distribution<>(0, 13), std::uniform_int_distribution<>(0, 15),
+};
+
+
+
 
 /**
  * Function to print 2D vectors (for debugging purposes)
  */
 void print_vec(board v) {
-    for (int i = 0; i < v.size(); i++) {
-        for (int j = 0; j < v[i].size(); j++) {
+    for (int i = 0; i < v.size(); ++i) {
+        for (int j = 0; j < v[i].size(); ++j) {
             std::cout << v[i][j] << " ";
         }
         std::cout << std::endl;
@@ -54,8 +66,8 @@ int numDigits(int32_t x)
 void Game::addNew() {
     // Create vector of empty tiles
     std::vector<std::pair<int, int>> empty_tiles;
-    for (int i = 0; i < DIM; i++) {
-        for (int j = 0; j < DIM; j++) {
+    for (int i = 0; i < DIM; ++i) {
+        for (int j = 0; j < DIM; ++j) {
             if (state[i][j] == 0) {
                 empty_tiles.push_back(std::pair<int, int>(i, j));
             }
@@ -65,11 +77,11 @@ void Game::addNew() {
     int size = empty_tiles.size();
     if (size > 0) {
         // Get random empty tile coordinates
-        std::uniform_int_distribution<> pos_dist(0, size - 1);
-        std::pair<int, int> choice = empty_tiles[pos_dist(rng)];
+        // std::uniform_int_distribution<> pos_dist(0, size - 1);
+        std::pair<int, int> choice = empty_tiles[DISTS[size-1](rng)];
 
         // Generating a random value of 2 or 4 (weighted probability)
-        if (val_dist(rng) > 0) {
+        if (DISTS[9](rng) > 0) {
             state[choice.first][choice.second] = 2;
         }
         else {
@@ -79,8 +91,8 @@ void Game::addNew() {
 }
 
 bool Game::canContinue() {
-    for (int i = 0; i < DIM; i++) {
-        for (int j = 0; j < DIM; j++) {
+    for (int i = 0; i < DIM; ++i) {
+        for (int j = 0; j < DIM; ++j) {
             if (state[i][j] == 0)
                 return true;
             if ((i < (DIM-1) && state[i][j] == state[i + 1][j]) || 
@@ -123,9 +135,9 @@ std::vector<int> Game::possibleMoves() {
 
 void Game::mergeUp() {
     board state_cpy = state;
-    for (int col = 0; col < DIM; col++) {
+    for (int col = 0; col < DIM; ++col) {
         std::vector<int> merged_column;
-        for (int i = 0; i < DIM; i++) {
+        for (int i = 0; i < DIM; ++i) {
             if (state[i][col] != 0) {
                 merged_column.push_back(state[i][col]);
             }            
@@ -133,7 +145,7 @@ void Game::mergeUp() {
         while (merged_column.size() < DIM) {
             merged_column.push_back(0);
         }
-        for (int i = 0; i < DIM; i++) {
+        for (int i = 0; i < DIM; ++i) {
             state_cpy[i][col] = merged_column[i];
         }
     }
@@ -142,7 +154,7 @@ void Game::mergeUp() {
 
 void Game::compressUp(bool peak) {
     board state_cpy = state;
-    for (int col = 0; col < DIM; col++) {
+    for (int col = 0; col < DIM; ++col) {
         std::vector<int> compressed_column;
         if (state[0][col] == state[1][col]) {
             compressed_column.push_back(state[0][col] * 2);
@@ -185,7 +197,7 @@ void Game::compressUp(bool peak) {
         while(compressed_column.size() < DIM) {
             compressed_column.push_back(0);
         }
-        for (int i = 0; i < DIM; i++) {
+        for (int i = 0; i < DIM; ++i) {
             state_cpy[i][col] = compressed_column[i];
         }
     }
@@ -194,7 +206,7 @@ void Game::compressUp(bool peak) {
 
 void Game::hamburgerFlip() {
     board flipped_state = {{}, {}, {}, {}};
-    for (int row = (DIM-1), i = 0; row >= 0; row--, i++) {
+    for (int row = (DIM-1), i = 0; row >= 0; --row, ++i) {
         flipped_state[i] = state[row];
     }
     state = flipped_state;
@@ -202,8 +214,8 @@ void Game::hamburgerFlip() {
 
 void Game::transpose() {
     board transposed_state = {{0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}};
-    for (int i = 0; i < DIM; i++) {
-        for (int j = 0; j < DIM; j++) {
+    for (int i = 0; i < DIM; ++i) {
+        for (int j = 0; j < DIM; ++j) {
             transposed_state[i][j] = state[j][i];
         }
     }
@@ -239,8 +251,8 @@ void Game::right(bool peak) {
 
 int Game::getHighestTile() {
     int highest_tile = 2;
-    for (int i = 0; i < DIM; i++) {
-        for (int j = 0; j < DIM; j++) {
+    for (int i = 0; i < DIM; ++i) {
+        for (int j = 0; j < DIM; ++j) {
             if (state[i][j] > highest_tile) {
                 highest_tile = state[i][j];
             }
@@ -252,11 +264,11 @@ int Game::getHighestTile() {
 std::ostream& operator<<(std::ostream &stream, Game &game) {
     int max_len = numDigits(game.getHighestTile());
     std::string str = "";
-    for (int i = 0; i < game.DIM; i++) {
-        for (int j = 0; j < game.DIM; j++) {
+    for (int i = 0; i < game.DIM; ++i) {
+        for (int j = 0; j < game.DIM; ++j) {
             int number_of_spaces = max_len - numDigits(game.state[i][j]) + 1;
             str += std::to_string(game.state[i][j]);
-            for (int k = 0; k < number_of_spaces; k++) {
+            for (int k = 0; k < number_of_spaces; ++k) {
                 str += " ";
             }
         }

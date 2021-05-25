@@ -10,7 +10,7 @@ typedef std::vector<std::vector<int>> board;
 
 extern std::random_device rd;
 extern std::mt19937 rng;
-extern std::uniform_int_distribution<> val_dist;
+extern std::uniform_int_distribution<> DISTS[];
 
 class Game {
     protected:

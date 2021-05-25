@@ -3,9 +3,12 @@
 
 #include "Game.hpp"
 #include <iostream>
+#include <chrono>
 
-void simulate_n_games(int win = 2048);
-std::pair<int, int> simulate_game();
-std::pair<int, int> simulate_one_run(Game game);
+using namespace std::chrono;
+
+void monteCarloSolve(int n, int runs, int win);
+std::pair<int, int> monteCarloSimulateGame(int runs);
+std::pair<int, int> simulateOneRun(Game game);
 
 #endif

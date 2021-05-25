@@ -31,8 +31,12 @@ std::pair<int, int> simulateOneRun(Game game) {
     return ret;
 }
 
-std::pair<int, int> monteCarloSimulateGame(int runs) {
+std::pair<int, int> monteCarloSimulateGame(int runs, int display_level) {
     Game game = Game();
+    std::cout << "Attempting to solve a new game..." << std::endl;
+    if (display_level >= 1) {
+        std::cout << game << std::endl;
+    }
     while (game.canContinue()) {
         int scores[4] = {0, 0, 0, 0};
         int counter[4] = {0, 0, 0, 0};
@@ -65,7 +69,9 @@ std::pair<int, int> monteCarloSimulateGame(int runs) {
         else {
             game.right(false);
         }
-        std::cout << game << std::endl;
+        if (display_level >= 1) {
+            std::cout << game << std::endl;
+        }
     }
 
     std::cout << game << std::endl;
@@ -73,7 +79,7 @@ std::pair<int, int> monteCarloSimulateGame(int runs) {
     return ret;
 }
 
-void monteCarloSolve(int n, int runs, int win=2048) {
+void monteCarloSolve(int n, int runs, int display_level, int win=2048) {
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
     int successes = 0;
@@ -83,7 +89,7 @@ void monteCarloSolve(int n, int runs, int win=2048) {
 
     for (int i = 0; i < n; ++i) {
         attempts++;
-        std::pair<int, int> result = monteCarloSimulateGame(runs);
+        std::pair<int, int> result = monteCarloSimulateGame(runs, display_level);
         if (result.first >= win) {
             successes++;
         }

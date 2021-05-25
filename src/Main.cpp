@@ -4,7 +4,7 @@
 #include "MonteCarloSolver.hpp"
 
 class CmdParser {
-    // Command parser from: https://stackoverflow.com/a/868894/9306928
+    // Simple cmd parser from: https://stackoverflow.com/a/868894/9306928
     public:
         CmdParser (int &argc, char **argv) {
             for (int i = 1; i < argc; ++i) {
@@ -30,24 +30,34 @@ class CmdParser {
 };
 
 int main(int argc, char** argv) {
-    // Default argument values
     int num_games = 1;
     int num_runs = 25;
+    int display_level = 1;
 
-    CmdParser input(argc, argv);
-    if (input.cmdOptionExists("-h")) {
-        std::cout << "Got an -h flag followed by: " << input.getCmdOption("-h") << std::endl;
+    CmdParser cms_parser(argc, argv);
+    if (cms_parser.cmdOptionExists("-h") || cms_parser.cmdOptionExists("--help") 
+            || cms_parser.cmdOptionExists("help") || cms_parser.cmdOptionExists("usage")) {
+        std::string msg = "Usage:\
+            \n  MonteCarloSolver <flag> <flag_val> ...\
+            \n  Flag list:\
+            \n    -n: Integer value; # times to run the algorithm. Stats displayed at program completion\
+            \n    -r: Integer value; # runs MonteCarlo completes for each move. Higher=better but slower. Recommend 10-100\
+            \n    -d: Integer value; Display level. Higher=more display. 0=minimal\
+            \n  Ex: MonteCarloSolver -n 1 -r 50 -d 1";
+        std::cout << msg << std::endl;
+        return 0;
     }
-    if (input.cmdOptionExists("-n")) {
-        num_games = std::stoi(input.getCmdOption("-n"));
+    if (cms_parser.cmdOptionExists("-n")) {
+        num_games = std::stoi(cms_parser.getCmdOption("-n"));
     }
-    if (input.cmdOptionExists("-r")) {
-        num_runs = std::stoi(input.getCmdOption("-r"));
+    if (cms_parser.cmdOptionExists("-r")) {
+        num_runs = std::stoi(cms_parser.getCmdOption("-r"));
+    }
+    if (cms_parser.cmdOptionExists("-d")) {
+        display_level = std::stoi(cms_parser.getCmdOption("-d"));
     }
 
-    std::cout << "Number of games: " << num_games << std::endl << "Number of runs: " << num_runs << std::endl;
-
-    monteCarloSolve(num_games, num_runs, 2048);
+    monteCarloSolve(num_games, num_runs, display_level, 2048);
 
     return 0;
 }

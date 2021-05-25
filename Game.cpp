@@ -264,8 +264,8 @@ int Game::getHighestTile() {
 std::ostream& operator<<(std::ostream &stream, Game &game) {
     int max_len = numDigits(game.getHighestTile());
     std::string str = "";
-    for (int i = 0; i < game.DIM; ++i) {
-        for (int j = 0; j < game.DIM; ++j) {
+    for (int i = 0; i < DIM; ++i) {
+        for (int j = 0; j < DIM; ++j) {
             int number_of_spaces = max_len - numDigits(game.state[i][j]) + 1;
             str += std::to_string(game.state[i][j]);
             for (int k = 0; k < number_of_spaces; ++k) {

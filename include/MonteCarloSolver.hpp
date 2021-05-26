@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <chrono>
+#include <numeric>
 #include "Game.hpp"
 
 using namespace std::chrono;

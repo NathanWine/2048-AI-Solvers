@@ -69,12 +69,14 @@ std::pair<int, int> monteCarloSimulateGame(int runs, int display_level) {
         else {
             game.right(false);
         }
-        if (display_level >= 1) {
+        if (display_level >= 2) {
             std::cout << game << std::endl;
         }
     }
 
-    std::cout << game << std::endl;
+    if (display_level >= 1) {
+        std::cout << game << std::endl;
+    }
     std::pair<int, int> ret(game.getHighestTile(), game.score);
     return ret;
 }
@@ -100,5 +102,14 @@ void monteCarloSolve(int n, int runs, int display_level, int win=2048) {
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
     duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
     std::cout << "Success rate: " << (float) successes / attempts * 100 << "%" << std::endl;
-    std::cout << "Duration: " << time_span.count() << " seconds" << std::endl;
+    if (n > 1) {
+        float average = std::accumulate(scores.begin(), scores.end(), 0.0) / n;
+        std::cout << "Average score: " << average << std::endl;
+        std::cout << "Highest tiles: ";
+        for (int i = 0; i < (int) highest_tiles.size(); ++i) {
+            std::cout << highest_tiles[i] << ", ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "Time elapsed: " << time_span.count() << " seconds" << std::endl;
 }

@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
             \n  Flag list:\
             \n    -n: Integer value; # times to run the algorithm. Stats displayed at program completion\
             \n    -r: Integer value; # runs MonteCarlo completes for each move. Higher=better but slower. Recommend 10-100\
-            \n    -d: Integer value; Display level. Higher=more display. 0=minimal\
+            \n    -d: Integer value; Display level. Higher=more display. 0=minimal, 1=medium, 2=full\
             \n  Ex: MonteCarloSolver -n 1 -r 50 -d 1";
         std::cout << msg << std::endl;
         return 0;

@@ -131,7 +131,6 @@ std::vector<int> Game::possibleMoves() {
 }
 
 void Game::mergeUp() {
-    board state_cpy = state;
     for (int col = 0; col < DIM; ++col) {
         std::vector<int> merged_column;
         for (int i = 0; i < DIM; ++i) {
@@ -143,14 +142,12 @@ void Game::mergeUp() {
             merged_column.push_back(0);
         }
         for (int i = 0; i < DIM; ++i) {
-            state_cpy[i][col] = merged_column[i];
+            state[i][col] = merged_column[i];
         }
     }
-    state = state_cpy;
 }
 
 void Game::compressUp(bool peak) {
-    board state_cpy = state;
     for (int col = 0; col < DIM; ++col) {
         std::vector<int> compressed_column;
         if (state[0][col] == state[1][col]) {
@@ -195,10 +192,9 @@ void Game::compressUp(bool peak) {
             compressed_column.push_back(0);
         }
         for (int i = 0; i < DIM; ++i) {
-            state_cpy[i][col] = compressed_column[i];
+            state[i][col] = compressed_column[i];
         }
     }
-    state = state_cpy;
 }
 
 void Game::hamburgerFlip() {

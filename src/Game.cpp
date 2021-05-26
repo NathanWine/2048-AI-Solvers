@@ -254,6 +254,18 @@ int Game::getHighestTile() {
     return highest_tile;
 }
 
+int Game::getNumberEmpty() {
+    int sum = 0;
+    for (int i = 0; i < DIM; ++i) {
+        for (int j = 0; j < DIM; ++j) {
+            if (state[i][j] == 0) {
+                sum += 1;
+            }
+        }
+    }
+    return sum;
+}
+
 std::ostream& operator<<(std::ostream &stream, Game &game) {
     int max_len = numDigits(game.getHighestTile());
     std::string str = "";

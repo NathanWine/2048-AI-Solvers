@@ -1,7 +1,6 @@
-#include <string>
-#include <algorithm>
 #include "Game.hpp"
 #include "MonteCarloSolver.hpp"
+#include "Heuristics.hpp"
 
 class CmdParser {
     // Simple cmd parser from: https://stackoverflow.com/a/868894/9306928

@@ -4,6 +4,9 @@
 #include <vector>
 #include <iostream>
 #include <random>
+#include <algorithm>
+#include <string>
+
 
 enum MOVES {UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3};
 typedef std::vector<std::vector<int>> board;
@@ -38,6 +41,7 @@ class Game {
         void right(bool peak);
         void down(bool peak);
         int getHighestTile();
+        int getNumberEmpty();
         friend std::ostream& operator<<(std::ostream &stream, Game &game);
 };
 

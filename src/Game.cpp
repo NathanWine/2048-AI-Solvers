@@ -100,34 +100,54 @@ bool Game::canContinue() {
     return false;
 }
 
-std::vector<int> Game::possibleMoves() {
-    std::vector<int> move_list;
-    if (canContinue()) {
+std::vector<std::pair<int, board>> Game::possibleMoves() {
+    std::vector<std::pair<int, board>> move_list;
         Game up_copy = *this;
         up_copy.up(true);
         if (up_copy.state != state) {
-            move_list.push_back(UP);
+            move_list.push_back(std::pair<int, board>(UP, up_copy.state));
         }
 
         Game down_copy = *this;
         down_copy.down(true);
         if (down_copy.state != state) {
-            move_list.push_back(DOWN);
+            move_list.push_back(std::pair<int, board>(DOWN, down_copy.state));
         }
 
         Game left_copy = *this;
         left_copy.left(true);
         if (left_copy.state != state) {
-            move_list.push_back(LEFT);
+            move_list.push_back(std::pair<int, board>(LEFT, left_copy.state));
         }
 
         Game right_copy = *this;
         right_copy.right(true);
         if (right_copy.state != state) {
-            move_list.push_back(RIGHT);
+            move_list.push_back(std::pair<int, board>(RIGHT, right_copy.state));
+        }
+    return move_list;
+}
+
+weightedmoves Game::computePossibilities() {
+    weightedmoves possibilities;
+    if (canContinue()) {            // MAKE SURE NOT TO DOUBLE CHECK THIS
+        std::vector<std::pair<int, board>> valid_moves = possibleMoves();
+
+        for (int move = 0; move < (int) valid_moves.size(); move++) {
+            for (int i = 0; i < DIM; ++i) {
+                for (int j = 0; j < DIM; ++j) {
+                    if (valid_moves[move].second[i][j] == 0) {
+                        board state_copy = valid_moves[move].second;
+                        state_copy[i][j] = 2;
+                        possibilities.push_back(std::tuple<int, float, board>(valid_moves[move].first, 0.9, state_copy));
+                        state_copy[i][j] = 4;
+                        possibilities.push_back(std::tuple<int, float, board>(valid_moves[move].first, 0.9, state_copy));
+                    }
+                }
+            }
         }
     }
-    return move_list;
+    return possibilities;
 }
 
 void Game::mergeUp() {
@@ -219,7 +239,7 @@ void Game::up(bool peak) {
     board prev_state = state;
     mergeUp();
     compressUp(peak);
-    if (state != prev_state) {
+    if (state != prev_state && !peak) {
         addNew();
     }
 }

@@ -2,16 +2,16 @@
 #define GAME_H
 
 #include <vector>
-#include <tuple>    // MAYBE REMOVE AND CHANGE TO OWN CLASS DEFINITION
+#include <map>
 #include <iostream>
 #include <random>
 #include <algorithm>
 #include <string>
 
-
+class Game;
 enum MOVES {UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3};
 typedef std::vector<std::vector<int>> board;
-typedef std::vector<std::tuple<int, float, board>> weightedmoves;
+typedef std::map<int, std::vector<std::pair<float, Game>>> weightedmoves;
 const int DIM = 4;
 
 extern std::random_device rd;
@@ -37,7 +37,7 @@ class Game {
             addNew();
         }
         bool canContinue();
-        std::vector<std::pair<int, board>> possibleMoves();
+        std::vector<std::pair<int, Game>> possibleMoves();
         weightedmoves computePossibilities();
         void up(bool peak);
         void left(bool peak);

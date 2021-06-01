@@ -74,7 +74,6 @@ void Game::addNew() {
     int size = empty_tiles.size();
     if (size > 0) {
         // Get random empty tile coordinates
-        // std::uniform_int_distribution<> pos_dist(0, size - 1);
         std::pair<int, int> choice = empty_tiles[DISTS[size-1](rng)];
 
         // Generating a random value of 2 or 4 (weighted probability)
@@ -100,53 +99,62 @@ bool Game::canContinue() {
     return false;
 }
 
-std::vector<std::pair<int, board>> Game::possibleMoves() {
-    std::vector<std::pair<int, board>> move_list;
+std::vector<std::pair<int, Game>> Game::possibleMoves() {
+    // Responsibility to check if game can continue is given to other functions
+    std::vector<std::pair<int, Game>> move_list;
         Game up_copy = *this;
         up_copy.up(true);
         if (up_copy.state != state) {
-            move_list.push_back(std::pair<int, board>(UP, up_copy.state));
+            move_list.push_back(std::pair<int, Game>(UP, up_copy));
         }
 
         Game down_copy = *this;
         down_copy.down(true);
         if (down_copy.state != state) {
-            move_list.push_back(std::pair<int, board>(DOWN, down_copy.state));
+            move_list.push_back(std::pair<int, Game>(DOWN, down_copy));
         }
 
         Game left_copy = *this;
         left_copy.left(true);
         if (left_copy.state != state) {
-            move_list.push_back(std::pair<int, board>(LEFT, left_copy.state));
+            move_list.push_back(std::pair<int, Game>(LEFT, left_copy));
         }
 
         Game right_copy = *this;
         right_copy.right(true);
         if (right_copy.state != state) {
-            move_list.push_back(std::pair<int, board>(RIGHT, right_copy.state));
+            move_list.push_back(std::pair<int, Game>(RIGHT, right_copy));
         }
     return move_list;
 }
 
 weightedmoves Game::computePossibilities() {
+    // Responsibility to check if game can continue is given to other functions
     weightedmoves possibilities;
-    if (canContinue()) {            // MAKE SURE NOT TO DOUBLE CHECK THIS
-        std::vector<std::pair<int, board>> valid_moves = possibleMoves();
+    std::vector<std::pair<int, Game>> valid_moves = possibleMoves();
 
-        for (int move = 0; move < (int) valid_moves.size(); move++) {
-            for (int i = 0; i < DIM; ++i) {
-                for (int j = 0; j < DIM; ++j) {
-                    if (valid_moves[move].second[i][j] == 0) {
-                        board state_copy = valid_moves[move].second;
-                        state_copy[i][j] = 2;
-                        possibilities.push_back(std::tuple<int, float, board>(valid_moves[move].first, 0.9, state_copy));
-                        state_copy[i][j] = 4;
-                        possibilities.push_back(std::tuple<int, float, board>(valid_moves[move].first, 0.9, state_copy));
-                    }
+    for (int possibility = 0; possibility < (int) valid_moves.size(); possibility++) {
+        int move = valid_moves[possibility].first;
+        for (int i = 0; i < DIM; ++i) {
+            for (int j = 0; j < DIM; ++j) {
+                if (valid_moves[possibility].second.state[i][j] == 0) {
+                    Game game_copy = valid_moves[possibility].second;
+                    game_copy.state[i][j] = 2;
+                    possibilities[move].push_back(std::pair<float, Game>(0.9, valid_moves[possibility].second));
+                    game_copy.state[i][j] = 4;
+                    possibilities[move].push_back(std::pair<float, Game>(0.1, valid_moves[possibility].second));
                 }
             }
         }
     }
+
+    for (auto &possibility : possibilities) {
+        int len = (int) possibility.second.size();
+        for (int i = 0; i < len; ++i) {
+            possibility.second[i].first /= len;
+        }
+    }
+
     return possibilities;
 }
 
@@ -172,14 +180,14 @@ void Game::compressUp(bool peak) {
         std::vector<int> compressed_column;
         if (state[0][col] == state[1][col]) {
             compressed_column.push_back(state[0][col] * 2);
-            if (!peak) {
+            // if (!peak) {
                 score += state[0][col] * 2;
-            }
+            // }
             if (state[2][col] == state[3][col]) {
                 compressed_column.push_back(state[2][col] * 2);
-                if (!peak) {
+                // if (!peak) {
                     score += state[2][col] * 2;
-                }
+                // }
             }
             else {
                 compressed_column.push_back(state[2][col]);
@@ -190,17 +198,17 @@ void Game::compressUp(bool peak) {
             compressed_column.push_back(state[0][col]);
             compressed_column.push_back(state[1][col] * 2);
             compressed_column.push_back(state[3][col]);
-            if (!peak) {
+            // if (!peak) {
                 score += state[1][col] * 2;
-            }
+            // }
         }
         else if (state[2][col] == state[3][col]) {
             compressed_column.push_back(state[0][col]);
             compressed_column.push_back(state[1][col]);
             compressed_column.push_back(state[2][col] * 2);
-            if (!peak) {
+            // if (!peak) {
                 score += state[2][col] * 2;
-            }
+            // }
         }
         else {
             compressed_column.push_back(state[0][col]);

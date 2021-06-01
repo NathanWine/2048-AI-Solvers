@@ -7,7 +7,7 @@ float snake_weights[4][4] = {
     {-3.8, -3.7  -3.5, -3}
 };
 
-float get_snake(Game game) {
+float get_snake(Game game) {        // Perhaps this should be normalized and multiplied by a weight instead? Becomes the only factor at high value tiles
     float snake_total = 0.0;
     for (int i = 0; i < DIM; ++i) {
         for (int j = 0; j < DIM; ++j) {

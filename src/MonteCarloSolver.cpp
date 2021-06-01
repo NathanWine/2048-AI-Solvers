@@ -33,7 +33,7 @@ std::pair<int, int> simulateOneRun(Game game) {
 
 std::pair<int, int> monteCarloSimulateGame(int runs, int display_level) {
     Game game = Game();
-    std::cout << "Attempting to solve a new game..." << std::endl;
+    std::cout << "Attempting to solve a new game with Monte Carlo..." << std::endl;
     if (display_level >= 1) {
         std::cout << game << std::endl;
     }

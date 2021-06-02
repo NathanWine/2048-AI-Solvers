@@ -51,14 +51,14 @@ int main(int argc, char** argv) {
     if (cmd_parser.cmdOptionExists("-h") || cmd_parser.cmdOptionExists("--help") 
             || cmd_parser.cmdOptionExists("help") || cmd_parser.cmdOptionExists("usage")) {
         std::string msg = "Usage:\
-            \n  MonteCarloSolver <flag> <flag_val> ...\
+            \n  AISolver <flag> <flag_val> ...\
             \n  Flag list:\
             \n    -a: Integer/String value; Algorithm to run. 0=montecarlo, 1=minimax\
             \n    -n: Integer value; # times to run the algorithm. Stats displayed at program completion\
             \n    -r: Integer value; # runs MonteCarlo completes for each move. Higher=better but slower. Recommend 10-100\
             \n    -d: Integer value; # depth level for MiniMax / Expectimax\
             \n    -p: Integer value; Print level. Higher=more display. 0=minimal, 1=medium, 2=high, 3=full\
-            \n  Ex: AISolver -a minimax -n 1 -r 50 -d 1";
+            \n  Ex: AISolver -a minimax -n 1 -d 1 -p 3";
         std::cout << msg << std::endl;
         return 0;
     }

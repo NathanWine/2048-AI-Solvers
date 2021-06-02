@@ -3,10 +3,11 @@
 #include "MonteCarloSolver.hpp"
 #include "Minimax.hpp"
 
-bool isNumber(const std::string& str)
-{
+bool isNumber(const std::string& str) {
     for (char const &c : str) {
-        if (std::isdigit(c) == 0) return false;
+        if (std::isdigit(c) == 0) {
+            return false;
+        }
     }
     return true;
 }
@@ -34,11 +35,12 @@ class CmdParser {
             return std::find(cmds.begin(), cmds.end(), opt) != cmds.end();
         }
     private:
-        std::vector <std::string> cmds;
+        std::vector<std::string> cmds;
 };
 
 int main(int argc, char** argv) {
-    std::map<std::string, int> alg_map = {{"montecarlo", 0}, {"minimax", 1}};
+    enum ALGORITHMS {MONTECARLO = 0, MINIMAX = 1};
+    std::map<std::string, int> alg_map = {{"montecarlo", MONTECARLO}, {"minimax", MINIMAX}};
     int algorithm = 10;
     int num_games = 1;
     int num_runs = 25;
@@ -95,10 +97,10 @@ int main(int argc, char** argv) {
     }
 
     switch (algorithm) {
-        case 0:
+        case MONTECARLO:
             monteCarloSolve(num_games, num_runs, print_level, 2048);
             break;
-        case 1:
+        case MINIMAX:
             miniMaxSolve(num_games, depth, print_level, 2048);
     }
 

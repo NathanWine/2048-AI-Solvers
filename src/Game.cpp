@@ -92,44 +92,54 @@ bool Game::canContinue() {
             if (state[i][j] == 0)
                 return true;
             if ((i < (DIM-1) && state[i][j] == state[i + 1][j]) || 
-                (j < (DIM-1) && state[i][j] == state[i][j + 1]))
+                (j < (DIM-1) && state[i][j] == state[i][j + 1]))    // If adj. hor/ver match
                 return true;
         }
     }
     return false;
 }
 
+/**
+ * Creates and returns a vector of each move that can be made given the current state, along 
+ * with a copy of the game if that move were to be made (WITHOUT RANDOM NEW TILE ADDITIONS)
+ * @return vector of (int MOVE, Game GAME_IF_MOVE_EXECUTED)
+ */
 movelist Game::possibleMoves() {
-    // Responsibility to check if game can continue is given to other functions
+    // Note: Responsibility to check if game can continue is given to other functions
     movelist move_list;
-        Game up_copy = *this;
-        up_copy.up(true);
-        if (up_copy.state != state) {
-            move_list.push_back(std::pair<int, Game>(UP, up_copy));
-        }
+    Game up_copy = *this;
+    up_copy.up(true);
+    if (up_copy.state != state) {
+        move_list.push_back(std::pair<int, Game>(UP, up_copy));
+    }
 
-        Game down_copy = *this;
-        down_copy.down(true);
-        if (down_copy.state != state) {
-            move_list.push_back(std::pair<int, Game>(DOWN, down_copy));
-        }
+    Game down_copy = *this;
+    down_copy.down(true);
+    if (down_copy.state != state) {
+        move_list.push_back(std::pair<int, Game>(DOWN, down_copy));
+    }
 
-        Game left_copy = *this;
-        left_copy.left(true);
-        if (left_copy.state != state) {
-            move_list.push_back(std::pair<int, Game>(LEFT, left_copy));
-        }
+    Game left_copy = *this;
+    left_copy.left(true);
+    if (left_copy.state != state) {
+        move_list.push_back(std::pair<int, Game>(LEFT, left_copy));
+    }
 
-        Game right_copy = *this;
-        right_copy.right(true);
-        if (right_copy.state != state) {
-            move_list.push_back(std::pair<int, Game>(RIGHT, right_copy));
-        }
+    Game right_copy = *this;
+    right_copy.right(true);
+    if (right_copy.state != state) {
+        move_list.push_back(std::pair<int, Game>(RIGHT, right_copy));
+    }
     return move_list;
 }
 
+/**
+ * Determines and returns the pool of valid moves at a given game state mapped to the 
+ * probability and following game state of ALL permutations from EACH of those moves.
+ * @return map of [MOVE, vector of (float PROBABILITY, Game POTENTIAL_GAME_STATE)]
+ */
 std::map<int, weightedmoves> Game::computePossibilities() {
-    // Responsibility to check if game can continue is given to other functions
+    // Note: Responsibility to check if game can continue is given to other functions
     std::map<int, weightedmoves> possibilities;
     movelist valid_moves = possibleMoves();
 
@@ -137,7 +147,7 @@ std::map<int, weightedmoves> Game::computePossibilities() {
         int move = valid_moves[possibility].first;
         for (int i = 0; i < DIM; ++i) {
             for (int j = 0; j < DIM; ++j) {
-                if (valid_moves[possibility].second.state[i][j] == 0) {
+                if (valid_moves[possibility].second.state[i][j] == 0) {     // Add all permutations
                     Game game_copy = valid_moves[possibility].second;
                     game_copy.state[i][j] = 2;
                     possibilities[move].push_back(std::pair<float, Game>(0.9, game_copy));
@@ -148,7 +158,7 @@ std::map<int, weightedmoves> Game::computePossibilities() {
         }
     }
 
-    for (auto &possibility : possibilities) {
+    for (auto &possibility : possibilities) {           // Normalize the probabilities
         int len = (int) possibility.second.size();
         for (int i = 0; i < len; ++i) {
             possibility.second[i].first /= len;

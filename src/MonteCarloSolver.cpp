@@ -1,5 +1,9 @@
 #include "MonteCarloSolver.hpp"
 
+/**
+ * From a given game state, chooses random moves until the game is completed.
+ * @return (int FIRST_MOVE, int FINAL_SCORE)
+*/
 std::pair<int, int> simulateOneRun(Game game) {
     Game game_cpy = game;
     int first_move = -1;
@@ -12,17 +16,23 @@ std::pair<int, int> simulateOneRun(Game game) {
             int random_pos = DISTS[move_bank.size() - 1](rng);
             int chosen_move = move_bank[random_pos];
 
-            if (chosen_move == UP)
-                game_cpy.up(false);
-            else if (chosen_move == DOWN)
-                game_cpy.down(false);
-            else if (chosen_move == LEFT)
-                game_cpy.left(false);
-            else
-                game_cpy.right(false);
-            if (first_move == -1)
+            switch(chosen_move) {
+                case UP:
+                    game_cpy.up(false);
+                    break;
+                case DOWN:
+                    game_cpy.down(false);
+                    break;
+                case LEFT:
+                    game_cpy.left(false);
+                    break;
+                case RIGHT:
+                    game_cpy.right(false);
+                    break;
+            }
+            if (first_move == -1) {
                 first_move = chosen_move;
-
+            }
             move_bank.erase(move_bank.begin() + random_pos);
         }
     }
@@ -31,6 +41,13 @@ std::pair<int, int> simulateOneRun(Game game) {
     return ret;
 }
 
+/**
+ * Creates a new game and then completes the game from its current state with 
+ * completely random moves until RUNS-many completions. The looks at the scores
+ * from those random runs to decide the best move for the current state and 
+ * executes that move. Continues this process until game completion.
+ * @return (int HIGHEST_TILE, int FINAL_SCORE)
+ */
 std::pair<int, int> monteCarloSimulateGame(int runs, int display_level) {
     Game game = Game();
     std::cout << "Attempting to solve a new game with Monte Carlo..." << std::endl;
@@ -57,23 +74,24 @@ std::pair<int, int> monteCarloSimulateGame(int runs, int display_level) {
             }
         }
 
-        if (best_move == UP) {
-            game.up(false);
-        }
-        else if (best_move == DOWN) {
-            game.down(false);
-        }
-        else if (best_move == LEFT) {
-            game.left(false);
-        }
-        else {
-            game.right(false);
+        switch(best_move) {
+            case UP:
+                game.up(false);
+                break;
+            case DOWN:
+                game.down(false);
+                break;
+            case LEFT:
+                game.left(false);
+                break;
+            case RIGHT:
+                game.right(false);
+                break;
         }
         if (display_level >= 2) {
             std::cout << game << std::endl;
         }
     }
-
     if (display_level >= 1) {
         std::cout << game << std::endl;
     }
@@ -81,9 +99,12 @@ std::pair<int, int> monteCarloSimulateGame(int runs, int display_level) {
     return ret;
 }
 
+/**
+ * Creates and completes n-many games using the MonteCarlo simulation function.
+ * Displays cumulative stats at completion.
+ */
 void monteCarloSolve(int n, int runs, int display_level, int win=2048) {
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-
     int successes = 0;
     int attempts = 0;
     std::vector<int> scores;
@@ -101,6 +122,7 @@ void monteCarloSolve(int n, int runs, int display_level, int win=2048) {
 
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
     duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+    
     std::cout << "Success rate: " << (float) successes / attempts * 100 << "%" << std::endl;
     if (n > 1) {
         float average = std::accumulate(scores.begin(), scores.end(), 0.0) / n;

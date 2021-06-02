@@ -1,39 +1,18 @@
 #include "Minimax.hpp"
 
 float minimaxScore(int depth, Game game) {
+    // Not sure if depth is working properly. Following the code from python codebase
     float score = 0.0;
     for (int stage = 0; stage < depth; ++stage) {
-        Game best_game;
-        float best_score = -std::numeric_limits<float>::max();
-
-        // CHECK FOR CANCONTINUE?
         movelist possible_moves = game.possibleMoves();
         if ((int) possible_moves.size() == 0) {
-            std::cout << std::endl << "**********" << std::endl << "I don't think this condition is ever truuuuuueeeee" << std::endl << "***********" << std::endl << std::endl;
             return 0.0;
         }
         
+        Game best_game;
+        float best_score = -std::numeric_limits<float>::max();
         for (int i = 0; i < (int) possible_moves.size(); i++) {
-            // Game game_copy = game;
-            // int move = possible_moves[i].first;
-            // if (move == UP) {
-            //     game_copy.up(true);
-            // }
-            // else if (move == DOWN) {
-            //     game_copy.down(true);
-            // }
-            // else if (move == LEFT) {
-            //     game_copy.left(true);
-            // }
-            // else if (move == RIGHT) {
-            //     game_copy.right(true);
-            // }
-
-            // if (get_score(game_copy) >= best_score) {
-            //     best_game = game_copy;
-            //     best_score = get_score(game_copy);
-            // }
-            float copy_h_score = get_score(possible_moves[i].second);
+            float copy_h_score = get_h_score(possible_moves[i].second);
             if (copy_h_score > best_score) {
                 best_game = possible_moves[i].second;
                 best_score = copy_h_score;
@@ -47,14 +26,14 @@ float minimaxScore(int depth, Game game) {
                 if (best_game.state[i][j] == 0) {
                     Game game_copy = best_game;
                     game_copy.state[i][j] = 2;
-                    float copy_h_score = get_score(game_copy);
+                    float copy_h_score = get_h_score(game_copy);
                     if (copy_h_score < worst_score) {
                         worst_game = game_copy;
                         worst_score = copy_h_score;
                     }
 
                     game_copy.state[i][j] = 4;
-                    copy_h_score = get_score(game_copy);
+                    copy_h_score = get_h_score(game_copy);
                     if (copy_h_score < worst_score) {
                         worst_game = game_copy;
                         worst_score = copy_h_score;
@@ -62,9 +41,7 @@ float minimaxScore(int depth, Game game) {
                 }
             }
         }
-        Game gameee = worst_game;
-        score = get_score(gameee);
-        // score = worst_score;
+        score = worst_score;
     }
     return score;
 }
@@ -77,11 +54,10 @@ std::pair<int, int> miniMaxSearch(int depth, int display_level) {
     }
     while (game.canContinue()) {
         if (display_level >= 2) {
-            std::cout << game << "Heuristic score: " << get_score(game) << std::endl;
+            std::cout << game;
         }
         std::map<int, weightedmoves> possibilities = game.computePossibilities();
         std::map<int, float> scores;
-        std::cout << "Possiblilities size: " << possibilities.size() << std::endl;
 
         for (auto const& entry : possibilities) {
             int move = entry.first;
@@ -95,11 +71,13 @@ std::pair<int, int> miniMaxSearch(int depth, int display_level) {
             }
         }
 
-        std::cout << "Scores: ";
-        for (auto const& score : scores) {
-            std::cout << score.first << ": " << score.second << ", ";
+        if (display_level >= 3) {
+            std::cout << "Heuristic score: " << get_h_score(game) << std::endl << "Move scores: ";
+            for (auto const& score : scores) {
+                std::cout << score.first << ": " << score.second << ", ";
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
 
         float max_score = -std::numeric_limits<float>::max();
         int max_choice = UP;
@@ -110,16 +88,23 @@ std::pair<int, int> miniMaxSearch(int depth, int display_level) {
             }
         }
 
-        std::cout << "Max choice: " << max_choice << std::endl << std::endl;
+        switch (max_choice) {
+            case UP:
+                game.up(false);
+                break;
+            case DOWN:
+                game.down(false);
+                break;
+            case LEFT: 
+                game.left(false);
+                break;
+            case RIGHT:
+                game.right(false);
+        }
 
-        if (max_choice == UP)
-            game.up(false);
-        else if (max_choice == DOWN)
-            game.down(false);
-        else if (max_choice == LEFT)
-            game.left(false);
-        else if (max_choice == RIGHT)
-            game.right(false);
+        if (display_level >= 2) {
+            std::cout << std::endl;
+        }
     }
     if (display_level >= 1) {
         std::cout << game << std::endl;

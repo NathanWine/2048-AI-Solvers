@@ -15,9 +15,9 @@ PRINT_STAMENTS := -DERROR -DSUCCESS -DWARN -DINFO
 
 .PHONY: clean all setup debug
 
-MONTE := MonteCarloSolver
+EXEC := AISolver
 
-all: setup $(MONTE)
+all: setup $(EXEC)
 
 debug: CFLAGS += $(DFLAGS) $(PRINT_STAMENTS) $(COLORF)
 debug: all
@@ -26,7 +26,7 @@ setup: $(BLDD)
 $(BLDD):
 	mkdir -p $(BLDD)
 
-$(MONTE): $(ALL_OBJF)
+$(EXEC): $(ALL_OBJF)
 	$(CC) $^ -o $@
 
 $(BLDD)/%.o: $(SRCD)/%.cpp

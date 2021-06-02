@@ -1,4 +1,6 @@
 # 2048 AI Solvers
+AI solvers for the puzzle game [2048](https://play2048.co/).
+
 Python to C++ ported code from [codebase](https://github.com/dwu1200/2048) made by 
 [Daniel Wu](https://github.com/dwu1200), 
 [Nathaniel Wine](https://github.com/NathanWine), and 
@@ -9,12 +11,21 @@ Port done by
 
 Some modifications/improvements are present with the goal of further improved performance/quality.
 
+## About
+The original project (as well as this one) was created with the goal of implementing 
+algorithms to achieve as high of a score as possible in the game 2048. Game.cpp 
+contains the code for the game logic, Heuristics.cpp contains several heuristic 
+metrics/functions to evaluate game state quality, and algorithm implementations are 
+split between MonteCarlo.cpp and Minimax.cpp.
+
+If unfamiliar with the game rules, check out [2048](https://play2048.co/).
+
 ## Setup
-First, navigate to the  run 
+First, navigate to the proper directory and run 
 ```
 make all
 ```
-and then follow [usage](##Usage). Note that this codebase was written and tested in a Linux environment. 
+...and then follow [usage](##Usage). Note that this codebase was written and tested in a _Linux_ environment. 
 Other operating systems may need to follow additional steps / procedures in order to run the program.
 
 ## Usage 

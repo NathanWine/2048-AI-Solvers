@@ -1,5 +1,5 @@
-#ifndef MONTECARLOSOLVER_H
-#define MONTECARLOSOLVER_H
+#ifndef MONTECARLO_H
+#define MONTECARLO_H
 
 #include <iostream>
 #include <chrono>

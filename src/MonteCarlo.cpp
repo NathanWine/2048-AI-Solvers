@@ -1,4 +1,4 @@
-#include "MonteCarloSolver.hpp"
+#include "MonteCarlo.hpp"
 
 /**
  * From a given game state, chooses random moves until the game is completed.

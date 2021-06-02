@@ -1,6 +1,6 @@
 #include <cctype>
 #include "Game.hpp"
-#include "MonteCarloSolver.hpp"
+#include "MonteCarlo.hpp"
 #include "Minimax.hpp"
 
 bool isNumber(const std::string& str) {

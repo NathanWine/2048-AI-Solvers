@@ -8,6 +8,6 @@ extern float snake_weights[4][4];
 
 float get_snake(Game game);
 float get_empty(Game game, float weight);
-float get_score(Game game);
+float get_h_score(Game game);
 
 #endif

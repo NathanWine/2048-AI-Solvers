@@ -140,9 +140,9 @@ std::map<int, weightedmoves> Game::computePossibilities() {
                 if (valid_moves[possibility].second.state[i][j] == 0) {
                     Game game_copy = valid_moves[possibility].second;
                     game_copy.state[i][j] = 2;
-                    possibilities[move].push_back(std::pair<float, Game>(0.9, valid_moves[possibility].second));
+                    possibilities[move].push_back(std::pair<float, Game>(0.9, game_copy));
                     game_copy.state[i][j] = 4;
-                    possibilities[move].push_back(std::pair<float, Game>(0.1, valid_moves[possibility].second));
+                    possibilities[move].push_back(std::pair<float, Game>(0.1, game_copy));
                 }
             }
         }
@@ -180,14 +180,10 @@ void Game::compressUp(bool peak) {
         std::vector<int> compressed_column;
         if (state[0][col] == state[1][col]) {
             compressed_column.push_back(state[0][col] * 2);
-            // if (!peak) {
-                score += state[0][col] * 2;
-            // }
+            score += state[0][col] * 2;
             if (state[2][col] == state[3][col]) {
                 compressed_column.push_back(state[2][col] * 2);
-                // if (!peak) {
-                    score += state[2][col] * 2;
-                // }
+                score += state[2][col] * 2;
             }
             else {
                 compressed_column.push_back(state[2][col]);
@@ -198,17 +194,13 @@ void Game::compressUp(bool peak) {
             compressed_column.push_back(state[0][col]);
             compressed_column.push_back(state[1][col] * 2);
             compressed_column.push_back(state[3][col]);
-            // if (!peak) {
-                score += state[1][col] * 2;
-            // }
+            score += state[1][col] * 2;
         }
         else if (state[2][col] == state[3][col]) {
             compressed_column.push_back(state[0][col]);
             compressed_column.push_back(state[1][col]);
             compressed_column.push_back(state[2][col] * 2);
-            // if (!peak) {
-                score += state[2][col] * 2;
-            // }
+            score += state[2][col] * 2;
         }
         else {
             compressed_column.push_back(state[0][col]);

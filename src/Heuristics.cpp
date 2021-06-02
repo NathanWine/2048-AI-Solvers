@@ -21,6 +21,6 @@ float get_empty(Game game, float weight) {
     return game.getNumberEmpty() * weight;
 }
 
-float get_score(Game game) {
+float get_h_score(Game game) {
     return get_snake(game) + std::pow(get_empty(game, 1.0), 2.0);
 }

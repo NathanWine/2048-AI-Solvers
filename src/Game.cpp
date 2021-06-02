@@ -99,9 +99,9 @@ bool Game::canContinue() {
     return false;
 }
 
-std::vector<std::pair<int, Game>> Game::possibleMoves() {
+movelist Game::possibleMoves() {
     // Responsibility to check if game can continue is given to other functions
-    std::vector<std::pair<int, Game>> move_list;
+    movelist move_list;
         Game up_copy = *this;
         up_copy.up(true);
         if (up_copy.state != state) {
@@ -128,10 +128,10 @@ std::vector<std::pair<int, Game>> Game::possibleMoves() {
     return move_list;
 }
 
-weightedmoves Game::computePossibilities() {
+std::map<int, weightedmoves> Game::computePossibilities() {
     // Responsibility to check if game can continue is given to other functions
-    weightedmoves possibilities;
-    std::vector<std::pair<int, Game>> valid_moves = possibleMoves();
+    std::map<int, weightedmoves> possibilities;
+    movelist valid_moves = possibleMoves();
 
     for (int possibility = 0; possibility < (int) valid_moves.size(); possibility++) {
         int move = valid_moves[possibility].first;

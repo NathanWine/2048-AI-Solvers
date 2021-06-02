@@ -78,15 +78,33 @@ int main(int argc, char** argv) {
     //     }
     // }
 
-    miniMaxSolve(1, 1, 2, 2048);
+    // miniMaxSolve(1, 1, 2, 2048);
 
-    // Game game = Game();
+    Game game = Game();
     // game.state = {
     //     {4, 2, 8, 0},
     //     {2, 16, 0, 0},
     //     {8, 64, 0, 0},
     //     {2, 32, 2, 0},
     // };
+    game.state = {
+        {4, 0, 0, 2},
+        {2, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0},
+    };
+    std::cout << get_score(game) << std::endl;
+    
+    movelist move_list = game.possibleMoves();
+    for (auto &move : move_list) {
+        std::cout << "Move: " << move.first << std::endl;
+        std::cout << move.second << std::endl;
+    }
+    // std::map<int, weightedmoves> poss = game.computePossibilities();
+
+
+
+
     // weightedmoves possibilities = game.computePossibilities();
 
     // std::map<int, float> scores;

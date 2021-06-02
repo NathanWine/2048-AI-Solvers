@@ -11,7 +11,8 @@
 class Game;
 enum MOVES {UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3};
 typedef std::vector<std::vector<int>> board;
-typedef std::map<int, std::vector<std::pair<float, Game>>> weightedmoves;
+typedef std::vector<std::pair<float, Game>> weightedmoves;
+typedef std::vector<std::pair<int, Game>> movelist;
 const int DIM = 4;
 
 extern std::random_device rd;
@@ -37,8 +38,8 @@ class Game {
             addNew();
         }
         bool canContinue();
-        std::vector<std::pair<int, Game>> possibleMoves();
-        weightedmoves computePossibilities();
+        movelist possibleMoves();
+        std::map<int, weightedmoves> computePossibilities();
         void up(bool peak);
         void left(bool peak);
         void right(bool peak);

@@ -7,7 +7,7 @@ float minimaxScore(int depth, Game game) {
         float best_score = -std::numeric_limits<float>::max();
 
         // CHECK FOR CANCONTINUE?
-        std::vector<std::pair<int, Game>> possible_moves = game.possibleMoves();
+        movelist possible_moves = game.possibleMoves();
         if ((int) possible_moves.size() == 0) {
             std::cout << std::endl << "**********" << std::endl << "I don't think this condition is ever truuuuuueeeee" << std::endl << "***********" << std::endl << std::endl;
             return 0.0;
@@ -79,13 +79,13 @@ std::pair<int, int> miniMaxSearch(int depth, int display_level) {
         if (display_level >= 2) {
             std::cout << game << "Heuristic score: " << get_score(game) << std::endl;
         }
-        weightedmoves possibilities = game.computePossibilities();
+        std::map<int, weightedmoves> possibilities = game.computePossibilities();
         std::map<int, float> scores;
         std::cout << "Possiblilities size: " << possibilities.size() << std::endl;
 
         for (auto const& entry : possibilities) {
             int move = entry.first;
-            std::vector<std::pair<float, Game>> weighted_subset = entry.second;
+            weightedmoves weighted_subset = entry.second;
             int len = (int) weighted_subset.size();
             if (len > 0) {
                 scores[move] = 0.0;
@@ -97,7 +97,7 @@ std::pair<int, int> miniMaxSearch(int depth, int display_level) {
 
         std::cout << "Scores: ";
         for (auto const& score : scores) {
-            std::cout << score.second << ", ";
+            std::cout << score.first << ": " << score.second << ", ";
         }
         std::cout << std::endl;
 

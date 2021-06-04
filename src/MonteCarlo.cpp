@@ -48,13 +48,12 @@ std::pair<int, int> simulateOneRun(Game game) {
  * executes that move. Continues this process until game completion.
  * @return (int HIGHEST_TILE, int FINAL_SCORE)
  */
-std::pair<int, int> monteCarloSimulateGame(int runs, int display_level) {
-    Game game = Game();
-    std::cout << "Attempting to solve a new game with Monte Carlo..." << std::endl;
-    if (display_level >= 1) {
-        std::cout << game << std::endl;
-    }
+std::pair<int, int> monteCarloSimulateGame(int runs, int display_level, Game game) {
+    std::cout << "Attempting to solve a new game with Monte Carlo... " << std::flush;
     while (game.canContinue()) {
+        if (display_level >= 2) {
+            std::cout << std::endl << game;
+        }
         int scores[4] = {0, 0, 0, 0};
         int counter[4] = {0, 0, 0, 0};
 
@@ -88,12 +87,12 @@ std::pair<int, int> monteCarloSimulateGame(int runs, int display_level) {
                 game.right(false);
                 break;
         }
-        if (display_level >= 2) {
-            std::cout << game << std::endl;
-        }
+    }
+    if (display_level <= 1) {
+        std::cout << "Done!" << (display_level == 0 ? "\n" : "");
     }
     if (display_level >= 1) {
-        std::cout << game << std::endl;
+        std::cout << std::endl << game << std::endl;
     }
     std::pair<int, int> ret(game.getHighestTile(), game.score);
     return ret;
@@ -108,7 +107,7 @@ int monteCarloSolve(int n, int runs, int display_level,
 
     int successes = 0;
     for (int i = 0; i < n; ++i) {
-        std::pair<int, int> result = monteCarloSimulateGame(runs, display_level);
+        std::pair<int, int> result = monteCarloSimulateGame(runs, display_level, Game());
         if (result.first >= WIN) {
             successes++;
         }

@@ -56,15 +56,11 @@ float minimaxScore(int depth, Game game) {
  * For each possible move, scores each of its following permutations and then executes the best.
  * @return (int HIGHEST_TILE, int FINAL_SCORE)
  */
-std::pair<int, int> minimaxSearch(int depth, int display_level) {
-    Game game = Game();
-    std::cout << "Attempting to solve a new game with Minimax..." << std::endl;
-    if (display_level >= 1) {
-        std::cout << game << std::endl;
-    }
+std::pair<int, int> minimaxSearch(int depth, int display_level, Game game) {
+    std::cout << "Attempting to solve a new game with Minimax... " << std::flush;
     while (game.canContinue()) {
         if (display_level >= 2) {
-            std::cout << game;
+            std::cout << std::endl << game;
         }
 
         std::map<int, weightedmoves> possibilities = game.computePossibilities();
@@ -113,12 +109,15 @@ std::pair<int, int> minimaxSearch(int depth, int display_level) {
                 game.right(false);
         }
 
-        if (display_level >= 2) {
-            std::cout << std::endl;
-        }
+        // if (display_level >= 2) {
+        //     std::cout << std::endl;
+        // }
+    }
+    if (display_level <= 1) {
+        std::cout << "Done!" << (display_level == 0 ? "\n" : "");
     }
     if (display_level >= 1) {
-        std::cout << game << std::endl;
+        std::cout << std::endl << game << std::endl;
     }
     return std::pair<int, int>(game.getHighestTile(), game.score);
 }
@@ -132,7 +131,7 @@ int minimaxSolve(int n, int depth, int display_level,
 
     int successes = 0;
     for (int i = 0; i < n; ++i) {
-        std::pair<int, int> result = minimaxSearch(depth, display_level);
+        std::pair<int, int> result = minimaxSearch(depth, display_level, Game());
         if (result.first >= WIN) {
             successes++;
         }

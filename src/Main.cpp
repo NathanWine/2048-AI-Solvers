@@ -3,6 +3,7 @@
 #include "MonteCarlo.hpp"
 #include "Minimax.hpp"
 
+// Simple cmd line parsing function to determine if a string is representing a number
 bool isNumber(const std::string& str) {
     for (char const &c : str) {
         if (std::isdigit(c) == 0) {
@@ -10,6 +11,12 @@ bool isNumber(const std::string& str) {
         }
     }
     return true;
+}
+
+// Simple function to convert a string to lowercase
+void lowercase(std::string *str) {
+    std::transform((*str).begin(), (*str).end(), (*str).begin(), 
+        [](unsigned char c){ return std::tolower(c); });
 }
 
 // Simple cmd parser from: https://stackoverflow.com/a/868894/9306928
@@ -56,7 +63,7 @@ int main(int argc, char** argv) {
             \n    -a: Integer/String value; Algorithm to run. 0=montecarlo, 1=minimax\
             \n    -n: Integer value; # times to run the algorithm. Stats displayed at program completion\
             \n    -r: Integer value; # runs MonteCarlo completes for each move. Higher=better but slower. Recommend 10-100\
-            \n    -d: Integer value; # depth level for MiniMax / Expectimax\
+            \n    -d: Integer value; # depth level for Minimax / Expectimax\
             \n    -p: Integer value; Print level. Higher=more display. 0=minimal, 1=medium, 2=high, 3=full\
             \n  Ex: AISolver -a minimax -n 1 -d 1 -p 3";
         std::cout << msg << std::endl;
@@ -68,6 +75,9 @@ int main(int argc, char** argv) {
             algorithm = std::stoi(a_arg);
         }
         else {
+            std::cout << a_arg << std::endl;
+            lowercase(&a_arg);
+            std::cout << a_arg << std::endl;
             algorithm = alg_map[a_arg];
         }
     }
@@ -101,7 +111,7 @@ int main(int argc, char** argv) {
             monteCarloSolve(num_games, num_runs, print_level, 2048);
             break;
         case MINIMAX:
-            miniMaxSolve(num_games, depth, print_level, 2048);
+            minimaxSolve(num_games, depth, print_level, 2048);
     }
 
     return 0;

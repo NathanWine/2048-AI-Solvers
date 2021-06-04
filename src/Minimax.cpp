@@ -56,9 +56,9 @@ float minimaxScore(int depth, Game game) {
  * For each possible move, scores each of its following permutations and then executes the best.
  * @return (int HIGHEST_TILE, int FINAL_SCORE)
  */
-std::pair<int, int> miniMaxSearch(int depth, int display_level) {
+std::pair<int, int> minimaxSearch(int depth, int display_level) {
     Game game = Game();
-    std::cout << "Attempting to solve a new game with MiniMax..." << std::endl;
+    std::cout << "Attempting to solve a new game with Minimax..." << std::endl;
     if (display_level >= 1) {
         std::cout << game << std::endl;
     }
@@ -124,10 +124,10 @@ std::pair<int, int> miniMaxSearch(int depth, int display_level) {
 }
 
 /**
- * Creates and completes n-many games using the MiniMax simulation function.
+ * Creates and completes n-many games using the Minimax simulation function.
  * Displays cumulative stats at completion.
  */
-void miniMaxSolve(int n, int depth, int display_level, int win) {
+void minimaxSolve(int n, int depth, int display_level, int win) {
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     int successes = 0;
     int attempts = 0;
@@ -136,7 +136,7 @@ void miniMaxSolve(int n, int depth, int display_level, int win) {
 
     for (int i = 0; i < n; ++i) {
         attempts++;
-        std::pair<int, int> result = miniMaxSearch(depth, display_level);
+        std::pair<int, int> result = minimaxSearch(depth, display_level);
         if (result.first >= win) {
             successes++;
         }

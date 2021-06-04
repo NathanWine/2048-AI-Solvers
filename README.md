@@ -34,10 +34,10 @@ AISolver < flag_1 > < flag_1_val > < flag_2 > < flag_2_val > ...
 ```
 
 Flag list:
-* -a: Integer/String value; Algorithm to run. 0 = MonteCarlo, 1 = MiniMax
+* -a: Integer/String value; Algorithm to run. 0 = MonteCarlo, 1 = Minimax
 * -n: Integer value; # times to run the algorithm. Stats displayed at program completion
 * -r: Integer value; # runs MonteCarlo completes for each move. Higher=better but slower. Recommend 10-100
-* -d: Integer value; # depth level for MiniMax / Expectimax
+* -d: Integer value; # depth level for Minimax / Expectimax
 * -p: Integer value; Print level. Higher=more display. 0 = minimal, 1 = medium, 2 = high, 3 = full
 
 Ex: 

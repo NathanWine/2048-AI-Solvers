@@ -10,8 +10,8 @@
 
 using namespace std::chrono;
 
-void miniMaxSolve(int n, int depth, int display_level, int win);
-std::pair<int, int> miniMaxSearch(int depth, int display_level);
+void minimaxSolve(int n, int depth, int display_level, int win);
+std::pair<int, int> minimaxSearch(int depth, int display_level);
 float minimaxScore(int depth, Game game);
 
 #endif

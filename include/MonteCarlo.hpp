@@ -2,14 +2,13 @@
 #define MONTECARLO_H
 
 #include <iostream>
-#include <chrono>
-#include <numeric>
 #include "Game.hpp"
 
-using namespace std::chrono;
+// using namespace std::chrono;
 
-void monteCarloSolve(int n, int runs, int display_level, int win);
-std::pair<int, int> monteCarloSimulateGame(int runs, int display_level);
 std::pair<int, int> simulateOneRun(Game game);
+std::pair<int, int> monteCarloSimulateGame(int runs, int display_level);
+int monteCarloSolve(int n, int runs, int display_level, 
+    std::vector<int> *scores, std::vector<int> *highest_tiles);
 
 #endif

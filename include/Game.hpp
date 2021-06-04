@@ -14,6 +14,7 @@ typedef std::vector<std::vector<int>> board;
 typedef std::vector<std::pair<float, Game>> weightedmoves;
 typedef std::vector<std::pair<int, Game>> movelist;
 const int DIM = 4;
+const int WIN = 2048;
 
 extern std::random_device rd;
 extern std::mt19937 rng;

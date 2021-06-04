@@ -125,37 +125,19 @@ std::pair<int, int> minimaxSearch(int depth, int display_level) {
 
 /**
  * Creates and completes n-many games using the Minimax simulation function.
- * Displays cumulative stats at completion.
+ * Tabulates data from game each in order to display results at completion.
  */
-void minimaxSolve(int n, int depth, int display_level, int win) {
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    int successes = 0;
-    int attempts = 0;
-    std::vector<int> scores;
-    std::vector<int> highest_tiles;
+int minimaxSolve(int n, int depth, int display_level, 
+    std::vector<int> *scores, std::vector<int> *highest_tiles) {
 
+    int successes = 0;
     for (int i = 0; i < n; ++i) {
-        attempts++;
         std::pair<int, int> result = minimaxSearch(depth, display_level);
-        if (result.first >= win) {
+        if (result.first >= WIN) {
             successes++;
         }
-        highest_tiles.push_back(result.first);
-        scores.push_back(result.second);
+        (*highest_tiles).push_back(result.first);
+        (*scores).push_back(result.second);
     }
-
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-
-    std::cout << "Success rate: " << (float) successes / attempts * 100 << "%" << std::endl;
-    if (n > 1) {
-        float average = std::accumulate(scores.begin(), scores.end(), 0.0) / n;
-        std::cout << "Average score: " << average << std::endl;
-        std::cout << "Highest tiles: ";
-        for (int i = 0; i < (int) highest_tiles.size(); ++i) {
-            std::cout << highest_tiles[i] << ", ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "Time elapsed: " << time_span.count() << " seconds" << std::endl;
+    return successes;
 }

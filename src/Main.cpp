@@ -1,7 +1,11 @@
 #include <cctype>
+#include <chrono>
+#include <numeric>
 #include "Game.hpp"
 #include "MonteCarlo.hpp"
 #include "Minimax.hpp"
+
+using namespace std::chrono;
 
 // Simple cmd line parsing function to determine if a string is representing a number
 bool isNumber(const std::string& str) {
@@ -48,12 +52,13 @@ class CmdParser {
 int main(int argc, char** argv) {
     enum ALGORITHMS {MONTECARLO = 0, MINIMAX = 1};
     std::map<std::string, int> alg_map = {{"montecarlo", MONTECARLO}, {"minimax", MINIMAX}};
-    int algorithm = 10;
+    int alg_key = MINIMAX;
     int num_games = 1;
     int num_runs = 25;
     int depth = 1;
     int print_level = 2;
 
+    // Parse command-line arguments
     CmdParser cmd_parser(argc, argv);
     if (cmd_parser.cmdOptionExists("-h") || cmd_parser.cmdOptionExists("--help") 
             || cmd_parser.cmdOptionExists("help") || cmd_parser.cmdOptionExists("usage")) {
@@ -72,13 +77,11 @@ int main(int argc, char** argv) {
     if (cmd_parser.cmdOptionExists("-a")) {
         std::string a_arg = cmd_parser.getCmdOption("-a");
         if (isNumber(a_arg)) {
-            algorithm = std::stoi(a_arg);
+            alg_key = std::stoi(a_arg);
         }
         else {
-            std::cout << a_arg << std::endl;
             lowercase(&a_arg);
-            std::cout << a_arg << std::endl;
-            algorithm = alg_map[a_arg];
+            alg_key = alg_map[a_arg];
         }
     }
     if (cmd_parser.cmdOptionExists("-n")) {
@@ -106,13 +109,39 @@ int main(int argc, char** argv) {
         }
     }
 
-    switch (algorithm) {
+    // Set up variables for statistics
+    int successes = 0;
+    std::vector<int> scores;
+    std::vector<int> highest_tiles;
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    switch (alg_key) {          // Run chosen algorithm
         case MONTECARLO:
-            monteCarloSolve(num_games, num_runs, print_level, 2048);
+            successes = monteCarloSolve(num_games, num_runs, print_level, &scores, &highest_tiles);
             break;
         case MINIMAX:
-            minimaxSolve(num_games, depth, print_level, 2048);
+            successes = minimaxSolve(num_games, depth, print_level, &scores, &highest_tiles);
+            break;
     }
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+
+    // Display statistics
+    if (num_games > 1) {
+        std::cout << "Success rate: " << (float) successes / num_games * 100 << "%" << std::endl;
+        float average = std::accumulate(scores.begin(), scores.end(), 0.0) / num_games;
+        std::cout << "Average score: " << average << std::endl;
+        std::cout << "Highest tiles: ";
+        for (int i = 0; i < (int) highest_tiles.size(); ++i) {
+            std::cout << highest_tiles[i] << ", ";
+        }
+        std::cout << std::endl;
+    }
+    else {
+        std::cout << (successes > 0 ? "Game won!" : "Game lost.") << std::endl;
+        std::cout << "Final score: " << scores[0] << std::endl;
+        std::cout << "Highest tile: " << highest_tiles[0] << std::endl;
+    }
+    std::cout << "Time elapsed: " << time_span.count() << " seconds" << std::endl;
 
     return 0;
 }

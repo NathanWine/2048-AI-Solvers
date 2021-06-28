@@ -16,7 +16,7 @@ The original project (as well as this one) was created with the goal of implemen
 algorithms to achieve as high of a score as possible in the game 2048. Game.cpp 
 contains the code for the game logic, Heuristics.cpp contains several heuristic 
 metrics/functions to evaluate game state quality, and algorithm implementations are 
-split between MonteCarlo.cpp and Minimax.cpp.
+split between MonteCarlo.cpp, Minimax.cpp, and Expectimax.cpp.
 
 If unfamiliar with the game rules, check out [2048](https://play2048.co/).
 
@@ -34,7 +34,7 @@ AISolver < flag_1 > < flag_1_val > < flag_2 > < flag_2_val > ...
 ```
 
 Flag list:
-* -a: Integer/String value; Algorithm to run. 0 = MonteCarlo, 1 = Minimax
+* -a: Integer/String value; Algorithm to run. 0 = MonteCarlo, 1 = Minimax, 2 = Expectimax
 * -n: Integer value; # times to run the algorithm. Stats displayed at program completion
 * -r: Integer value; # runs MonteCarlo completes for each move. Higher=better but slower. Recommend 10-100
 * -d: Integer value; # depth level for Minimax / Expectimax

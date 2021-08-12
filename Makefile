@@ -8,9 +8,9 @@ ALL_OBJF := $(patsubst $(SRCD)/%,$(BLDD)/%,$(ALL_SRCF:.cpp=.o))
 
 INC := -I $(INCD)
 
-CFLAGS := -Wall -Werror -Wno-unused-variable -Wno-unused-function -MMD
+CFLAGS := -Wall -Werror -Wno-unused-variable -Wno-unused-function -MMD -O3
 COLORF := -DCOLOR
-DFLAGS := -g -DDEBUG -DCOLOR
+DFLAGS := -g -DDEBUG -DCOLOR -Og
 PRINT_STAMENTS := -DERROR -DSUCCESS -DWARN -DINFO
 
 .PHONY: clean all setup debug
@@ -21,6 +21,8 @@ all: setup $(EXEC)
 
 debug: CFLAGS += $(DFLAGS) $(PRINT_STAMENTS) $(COLORF)
 debug: all
+
+
 
 setup: $(BLDD)
 $(BLDD):

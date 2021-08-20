@@ -22,8 +22,6 @@ all: setup $(EXEC)
 debug: CFLAGS += $(DFLAGS) $(PRINT_STAMENTS) $(COLORF)
 debug: all
 
-
-
 setup: $(BLDD)
 $(BLDD):
 	mkdir -p $(BLDD)

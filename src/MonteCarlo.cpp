@@ -103,7 +103,7 @@ std::pair<int, int> monteCarloSimulateGame(int runs, int display_level, Game gam
  * Tabulates data from each game in order to display results at completion.
  */
 int monteCarloSolve(int n, int runs, int display_level,
-    std::vector<int> *scores, std::vector<int> *highest_tiles) {
+    std::vector<int> &scores, std::vector<int> &highest_tiles) {
 
     int successes = 0;
     for (int i = 0; i < n; ++i) {
@@ -111,8 +111,8 @@ int monteCarloSolve(int n, int runs, int display_level,
         if (result.first >= WIN) {
             successes++;
         }
-        (*highest_tiles).push_back(result.first);
-        (*scores).push_back(result.second);
+        highest_tiles.push_back(result.first);
+        scores.push_back(result.second);
     }
     return successes;
 }

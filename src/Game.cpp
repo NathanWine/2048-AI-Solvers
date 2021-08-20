@@ -86,7 +86,7 @@ void Game::addNew() {
     }
 }
 
-bool Game::canContinue() {
+bool Game::canContinue() const {
     for (int i = 0; i < DIM; ++i) {
         for (int j = 0; j < DIM; ++j) {
             if (state[i][j] == 0)
@@ -104,9 +104,8 @@ bool Game::canContinue() {
  * with a copy of the game if that move were to be made (WITHOUT RANDOM NEW TILE ADDITIONS)
  * @return vector of (int MOVE, Game GAME_IF_MOVE_EXECUTED)
  */
-movelist Game::possibleMoves() {
+bool Game::generatePossibleMoves(movelist &move_list) const {
     // Note: Responsibility to check if game can continue is given to other functions
-    movelist move_list;
     Game up_copy = *this;
     up_copy.up(true);
     if (up_copy.state != state) {
@@ -130,7 +129,7 @@ movelist Game::possibleMoves() {
     if (right_copy.state != state) {
         move_list.push_back(std::pair<int, Game>(RIGHT, right_copy));
     }
-    return move_list;
+    return move_list.size() > 0;
 }
 
 /**
@@ -138,21 +137,22 @@ movelist Game::possibleMoves() {
  * probability and following game state of ALL permutations from EACH of those moves.
  * @return map of [MOVE, vector of (float PROBABILITY, Game POTENTIAL_GAME_STATE)]
  */
-std::map<int, weightedmoves> Game::computePossibilities() {
+std::map<int, weightedmoves> Game::computePossibilities() const {
     // Note: Responsibility to check if game can continue is given to other functions
     std::map<int, weightedmoves> possibilities;
-    movelist valid_moves = possibleMoves();
+    movelist valid_moves;
+    generatePossibleMoves(valid_moves);
 
-    for (int possibility = 0; possibility < (int) valid_moves.size(); possibility++) {
-        int move = valid_moves[possibility].first;
+    for (auto const &move : valid_moves) {
+        int dir = move.first;
         for (int i = 0; i < DIM; ++i) {
             for (int j = 0; j < DIM; ++j) {
-                if (valid_moves[possibility].second.state[i][j] == 0) {     // Add all permutations
-                    Game game_copy = valid_moves[possibility].second;
+                if (move.second.state[i][j] == 0) {      // If space is 0, add all outcomes if tile added here
+                    Game game_copy = move.second;
                     game_copy.state[i][j] = 2;
-                    possibilities[move].push_back(std::pair<float, Game>(0.9, game_copy));
+                    possibilities[dir].push_back(std::pair<float, Game>(0.9, game_copy));
                     game_copy.state[i][j] = 4;
-                    possibilities[move].push_back(std::pair<float, Game>(0.1, game_copy));
+                    possibilities[dir].push_back(std::pair<float, Game>(0.1, game_copy));
                 }
             }
         }
@@ -272,7 +272,7 @@ void Game::right(bool peak) {
     transpose();
 }
 
-int Game::getHighestTile() {
+int Game::getHighestTile() const {
     int highest_tile = 2;
     for (int i = 0; i < DIM; ++i) {
         for (int j = 0; j < DIM; ++j) {
@@ -284,11 +284,11 @@ int Game::getHighestTile() {
     return highest_tile;
 }
 
-int Game::getNumberEmpty() {
+int Game::getNumberEmpty(const board &game_state) {
     int sum = 0;
     for (int i = 0; i < DIM; ++i) {
         for (int j = 0; j < DIM; ++j) {
-            if (state[i][j] == 0) {
+            if (game_state[i][j] == 0) {
                 sum += 1;
             }
         }
@@ -296,7 +296,7 @@ int Game::getNumberEmpty() {
     return sum;
 }
 
-std::ostream& operator<<(std::ostream &stream, Game &game) {
+std::ostream& operator<<(std::ostream &stream, const Game &game) {
     int max_len = numDigits(game.getHighestTile());
     std::string str = "";
     for (int i = 0; i < DIM; ++i) {

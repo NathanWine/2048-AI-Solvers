@@ -7,7 +7,7 @@ float expectimaxScore(int depth, Game game, bool is_max) {
     }
     else if (is_max) {
         if (depth == 0) {
-            return get_h_score(game);
+            return Heuristics::get_h_score(game.state);
         }
         else {
             std::map<int, float> scores;
@@ -18,7 +18,7 @@ float expectimaxScore(int depth, Game game, bool is_max) {
                 if (len > 0) {
                     scores[move] = 0.0;
                     for (int j = 0; j < len; ++j) {
-                        scores[move] += get_h_score(weighted_subset[j].second) * weighted_subset[j].first;
+                        scores[move] += Heuristics::get_h_score(weighted_subset[j].second.state) * weighted_subset[j].first;
                     }
                 }
             }
@@ -92,7 +92,7 @@ std::pair<int, int> expectimaxSearch(int depth, int display_level, Game game) {
             }
         }
         if (display_level >= 3) {
-            std::cout << "Heuristic score: " << get_h_score(game) << std::endl << "Move scores: ";
+            std::cout << "Heuristic score: " << Heuristics::get_h_score(game.state) << std::endl << "Move scores: ";
             for (auto const& score : scores) {
                 std::cout << score.first << ": " << score.second << ", ";
             }

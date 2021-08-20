@@ -4,10 +4,11 @@
 #include <cmath>
 #include "Game.hpp"
 
-extern float snake_weights[4][4];
-
-float get_snake(Game game);
-float get_empty(Game game, float weight);
-float get_h_score(Game game);
+// extern const float snake_weights[4][4];
+namespace Heuristics {
+    float get_snake(const board &state);
+    float get_empty(const board &state, float weight);
+    float get_h_score(const board &state);
+}
 
 #endif

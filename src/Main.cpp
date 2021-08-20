@@ -19,8 +19,8 @@ bool isNumber(const std::string& str) {
 }
 
 // Simple function to convert a string to lowercase
-void lowercase(std::string *str) {
-    std::transform((*str).begin(), (*str).end(), (*str).begin(), 
+void lowercase(std::string &str) {
+    std::transform(str.begin(), str.end(), str.begin(), 
         [](unsigned char c){ return std::tolower(c); });
 }
 
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
             alg_key = std::stoi(a_arg);
         }
         else {
-            lowercase(&a_arg);
+            lowercase(a_arg);
             alg_key = alg_map[a_arg];
         }
     }
@@ -117,10 +117,10 @@ int main(int argc, char** argv) {
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     switch (alg_key) {          // Run chosen algorithm
         case MONTECARLO:
-            successes = monteCarloSolve(num_games, num_runs, print_level, &scores, &highest_tiles);
+            successes = monteCarloSolve(num_games, num_runs, print_level, scores, highest_tiles);
             break;
         case MINIMAX:
-            successes = minimaxSolve(num_games, depth, print_level, &scores, &highest_tiles);
+            successes = minimaxSolve(num_games, depth, print_level, scores, highest_tiles);
             break;
         case EXPECTIMAX:
             successes = expectimaxSolve(num_games, depth, print_level, &scores, &highest_tiles);

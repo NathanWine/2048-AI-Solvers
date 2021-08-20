@@ -38,16 +38,16 @@ class Game {
             addNew();
             addNew();
         }
-        bool canContinue();
-        movelist possibleMoves();
-        std::map<int, weightedmoves> computePossibilities();
+        bool canContinue() const;
+        bool generatePossibleMoves(movelist &moves) const;
+        std::map<int, weightedmoves> computePossibilities() const;
         void up(bool peak);
         void left(bool peak);
         void right(bool peak);
         void down(bool peak);
-        int getHighestTile();
-        int getNumberEmpty();
-        friend std::ostream& operator<<(std::ostream &stream, Game &game);
+        int getHighestTile() const;
+        static int getNumberEmpty(const board &state);
+        friend std::ostream& operator<<(std::ostream &stream, const Game &game);
 };
 
 #endif

@@ -108,10 +108,6 @@ std::pair<int, int> minimaxSearch(int depth, int display_level, Game game) {
             case RIGHT:
                 game.right(false);
         }
-
-        // if (display_level >= 2) {
-        //     std::cout << std::endl;
-        // }
     }
     if (display_level <= 1) {
         std::cout << "Done!" << (display_level == 0 ? "\n" : "");

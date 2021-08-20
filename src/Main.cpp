@@ -4,6 +4,7 @@
 #include "Game.hpp"
 #include "MonteCarlo.hpp"
 #include "Minimax.hpp"
+#include "Expectimax.hpp"
 
 using namespace std::chrono;
 
@@ -50,8 +51,8 @@ class CmdParser {
 };
 
 int main(int argc, char** argv) {
-    enum ALGORITHMS {MONTECARLO = 0, MINIMAX = 1};
-    std::map<std::string, int> alg_map = {{"montecarlo", MONTECARLO}, {"minimax", MINIMAX}};
+    enum ALGORITHMS {MONTECARLO, MINIMAX, EXPECTIMAX};
+    std::map<std::string, int> alg_map = {{"montecarlo", MONTECARLO}, {"minimax", MINIMAX}, {"expectimax", EXPECTIMAX}};
     int alg_key = MINIMAX;
     int num_games = 1;
     int num_runs = 25;
@@ -65,7 +66,7 @@ int main(int argc, char** argv) {
         std::string msg = "Usage:\
             \n  AISolver <flag> <flag_val> ...\
             \n  Flag list:\
-            \n    -a: Integer/String value; Algorithm to run. 0=montecarlo, 1=minimax\
+            \n    -a: Integer/String value; Algorithm to run. 0=montecarlo, 1=minimax, 2=expectimax\
             \n    -n: Integer value; # times to run the algorithm. Stats displayed at program completion\
             \n    -r: Integer value; # runs MonteCarlo completes for each move. Higher=better but slower. Recommend 10-100\
             \n    -d: Integer value; # depth level for Minimax / Expectimax\
@@ -121,6 +122,8 @@ int main(int argc, char** argv) {
         case MINIMAX:
             successes = minimaxSolve(num_games, depth, print_level, &scores, &highest_tiles);
             break;
+        case EXPECTIMAX:
+            successes = expectimaxSolve(num_games, depth, print_level, &scores, &highest_tiles);
     }
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
     duration<double> time_span = duration_cast<duration<double>>(t2 - t1);

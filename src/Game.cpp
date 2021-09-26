@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "Util.hpp"
 
 // Initialize rnd devices and distributions
 std::random_device rd;
@@ -13,52 +14,6 @@ std::uniform_int_distribution<> DISTS[] = {             // Really ugly...
     std::uniform_int_distribution<>(0, 12), std::uniform_int_distribution<>(0, 13), 
     std::uniform_int_distribution<>(0, 13), std::uniform_int_distribution<>(0, 15),
 };
-
-/**
- * Function to print 2D vectors (for debugging purposes)
- */
-void print_vec(board v) {
-    for (int i = 0; i < (int) v.size(); ++i) {
-        for (int j = 0; j < (int) v[i].size(); ++j) {
-            std::cout << v[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-
-/**
- * Binary search function for determining the number of digits in a number
- * (more efficient than the log method) 
- * from: https://stackoverflow.com/questions/1489830/efficient-way-to-determine-number-of-digits-in-an-integer
- */
-int numDigits(int32_t x)
-{
-    if (x >= 10000) {
-        if (x >= 10000000) {
-            if (x >= 100000000) {
-                if (x >= 1000000000)
-                    return 10;
-                return 9;
-            }
-            return 8;
-        }
-        if (x >= 100000) {
-            if (x >= 1000000)
-                return 7;
-            return 6;
-        }
-        return 5;
-    }
-    if (x >= 100) {
-        if (x >= 1000)
-            return 4;
-        return 3;
-    }
-    if (x >= 10)
-        return 2;
-    return 1;
-}
 
 void Game::addNew() {
     // Create vector of empty tiles
@@ -296,18 +251,31 @@ int Game::getNumberEmpty(const board &game_state) {
     return sum;
 }
 
-std::ostream& operator<<(std::ostream &stream, const Game &game) {
-    int max_len = numDigits(game.getHighestTile());
+const std::string Game::printBoard(int *width = NULL) const {
+    int max_len = Util::numDigits(getHighestTile());
     std::string str = "";
     for (int i = 0; i < DIM; ++i) {
         for (int j = 0; j < DIM; ++j) {
-            int number_of_spaces = max_len - numDigits(game.state[i][j]) + 1;
-            str += std::to_string(game.state[i][j]);
+            int number_of_spaces = max_len - Util::numDigits(state[i][j]) + 1;
+            str += std::to_string(state[i][j]);
             for (int k = 0; k < number_of_spaces; ++k) {
                 str += " ";
             }
         }
-        str += "\n";
+        if (i < DIM - 1) {
+            str += "\n";
+        }
     }
-    return stream << "Score: " + std::to_string(game.score) << std::endl << str;
+    if (width != NULL) {
+        *width = (max_len * DIM) + DIM;
+    }
+    return str;
+}
+
+const std::string Game::staticPrint(const Game &game, int *width) {
+    return game.printBoard(width);
+}
+
+std::ostream& operator<<(std::ostream &stream, const Game &game) {
+    return stream << "Score: " + std::to_string(game.score) << "\n" << game.printBoard() << "\n";
 }

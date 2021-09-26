@@ -1,33 +1,32 @@
-#include <cctype>
 #include <chrono>
 #include <numeric>
 #include "Game.hpp"
 #include "MonteCarlo.hpp"
 #include "Minimax.hpp"
 #include "Expectimax.hpp"
+#include "Freeplay.hpp"
+#include "Util.hpp"
 
 using namespace std::chrono;
 
-// Simple cmd line parsing function to determine if a string is representing a number
-bool isNumber(const std::string& str) {
-    for (char const &c : str) {
-        if (std::isdigit(c) == 0) {
-            return false;
-        }
-    }
-    return true;
-}
+enum ALGORITHM {FREEPLAY, MONTECARLO, MINIMAX, EXPECTIMAX};
+const std::map<std::string, ALGORITHM> alg_map = {
+    {"freeplay", FREEPLAY},
+    {"montecarlo", MONTECARLO}, 
+    {"minimax", MINIMAX}, 
+    {"expectimax", EXPECTIMAX}
+};
 
-// Simple function to convert a string to lowercase
-void lowercase(std::string &str) {
-    std::transform(str.begin(), str.end(), str.begin(), 
-        [](unsigned char c){ return std::tolower(c); });
-}
+int alg_key     = FREEPLAY;
+int num_games   = 1;
+int num_runs    = 25;
+int depth       = 1;
+int print_level = 2;        // 0 = minimal, 1 = medium, 2 = high, 3 = full
 
 // Simple cmd parser from: https://stackoverflow.com/a/868894/9306928
 class CmdParser {
     public:
-        CmdParser (int &argc, char **argv) {
+        CmdParser (const int argc, char **argv) {
             for (int i = 1; i < argc; ++i) {
                 cmds.push_back(std::string(argv[i]));
             }
@@ -50,64 +49,63 @@ class CmdParser {
         std::vector<std::string> cmds;
 };
 
-int main(int argc, char** argv) {
-    enum ALGORITHMS {MONTECARLO, MINIMAX, EXPECTIMAX};
-    std::map<std::string, int> alg_map = {{"montecarlo", MONTECARLO}, {"minimax", MINIMAX}, {"expectimax", EXPECTIMAX}};
-    int alg_key = MINIMAX;
-    int num_games = 1;
-    int num_runs = 25;
-    int depth = 1;
-    int print_level = 2;
-
-    // Parse command-line arguments
+bool parseArgs(int argc, char** argv) {
     CmdParser cmd_parser(argc, argv);
     if (cmd_parser.cmdOptionExists("-h") || cmd_parser.cmdOptionExists("--help") 
             || cmd_parser.cmdOptionExists("help") || cmd_parser.cmdOptionExists("usage")) {
         std::string msg = "Usage:\
             \n  AISolver <flag> <flag_val> ...\
             \n  Flag list:\
-            \n    -a: Integer/String value; Algorithm to run. 0=montecarlo, 1=minimax, 2=expectimax\
+            \n    -a: Integer/String value; Algorithm to run. 1=montecarlo, 2=minimax, 3=expectimax\
             \n    -n: Integer value; # times to run the algorithm. Stats displayed at program completion\
             \n    -r: Integer value; # runs MonteCarlo completes for each move. Higher=better but slower. Recommend 10-100\
             \n    -d: Integer value; # depth level for Minimax / Expectimax\
             \n    -p: Integer value; Print level. Higher=more display. 0=minimal, 1=medium, 2=high, 3=full\
             \n  Ex: AISolver -a minimax -n 1 -d 1 -p 3";
         std::cout << msg << std::endl;
-        return 0;
+        return false;
     }
     if (cmd_parser.cmdOptionExists("-a")) {
         std::string a_arg = cmd_parser.getCmdOption("-a");
-        if (isNumber(a_arg)) {
+        if (Util::isNumber(a_arg)) {
             alg_key = std::stoi(a_arg);
         }
         else {
-            lowercase(a_arg);
-            alg_key = alg_map[a_arg];
+            Util::lowercase(a_arg);
+            alg_key = alg_map.at(a_arg);
         }
     }
     if (cmd_parser.cmdOptionExists("-n")) {
         std::string n_option = cmd_parser.getCmdOption("-n");
-        if (isNumber(n_option)) {
+        if (Util::isNumber(n_option)) {
             num_games = std::stoi(n_option);
         }
     }
     if (cmd_parser.cmdOptionExists("-r")) {
         std::string r_option = cmd_parser.getCmdOption("-r");
-        if (isNumber(r_option)) {
+        if (Util::isNumber(r_option)) {
             num_runs = std::stoi(r_option);
         }
     }
     if (cmd_parser.cmdOptionExists("-d")) {
         std::string d_option = cmd_parser.getCmdOption("-d");
-        if (isNumber(d_option)) {
+        if (Util::isNumber(d_option)) {
             depth = std::stoi(d_option);
         }
     }
     if (cmd_parser.cmdOptionExists("-p")) {
         std::string p_option = cmd_parser.getCmdOption("-p");
-        if (isNumber(p_option)) {
+        if (Util::isNumber(p_option)) {
             print_level = std::stoi(p_option);
         }
+    }
+    return true;
+}
+
+int main(int argc, char** argv) {
+    // Parse command-line arguments
+    if (!parseArgs(argc, argv)) {
+        return 0;
     }
 
     // Set up variables for statistics
@@ -120,10 +118,14 @@ int main(int argc, char** argv) {
             successes = monteCarloSolve(num_games, num_runs, print_level, scores, highest_tiles);
             break;
         case MINIMAX:
-            successes = minimaxSolve(num_games, depth, print_level, scores, highest_tiles);
+            successes = Minimax::minimaxSolve(num_games, depth, print_level, scores, highest_tiles);
             break;
         case EXPECTIMAX:
             successes = expectimaxSolve(num_games, depth, print_level, &scores, &highest_tiles);
+            break;
+        default:
+            Freeplay player;
+            successes = player.play(num_games, scores, highest_tiles);
     }
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
     duration<double> time_span = duration_cast<duration<double>>(t2 - t1);

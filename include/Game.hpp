@@ -47,6 +47,8 @@ class Game {
         void down(bool peak);
         int getHighestTile() const;
         static int getNumberEmpty(const board &state);
+        static const std::string staticPrint(const Game &game, int *width);
+        const std::string printBoard(int *width) const;
         friend std::ostream& operator<<(std::ostream &stream, const Game &game);
 };
 
